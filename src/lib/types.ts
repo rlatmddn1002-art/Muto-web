@@ -1,4 +1,4 @@
-export const AREAS = ["채널", "콘텐츠", "출판", "대학원", "서비스", "비전"] as const;
+export const AREAS = ["건축", "채널", "콘텐츠", "출판", "대학원", "서비스", "비전"] as const;
 export type Area = (typeof AREAS)[number];
 
 // 프로젝트 기준 상태: 예정 · 진행 · 검토 · 완료

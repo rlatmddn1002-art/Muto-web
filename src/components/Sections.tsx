@@ -71,10 +71,28 @@ function Block({ id, title, note, items, postsFor }: { id: string; title: string
   );
 }
 
-export async function WorkSections() {
+async function workData() {
   const all = await getPublicActivities();
   const by = (area: string) => all.filter((a) => a.area === area);
-  const works = [...by("서비스"), ...by("대학원"), ...by("비전")];
+  return { by };
+}
+
+/** 건축 — 설계 · 연구 · 도구 */
+export async function ArchitectureSections() {
+  const { by } = await workData();
+  return (
+    <>
+      <Block id="projects" title="Projects" note="설계 · 프로젝트" items={by("건축")} />
+      <Block id="research" title="Research" note="대학원 · 연구" items={by("대학원")} />
+      <Block id="tools" title="Tools" note="도구 · 서비스" items={by("서비스")} />
+      <Block id="vision" title="Vision" note="스테이 · 카페" items={by("비전")} />
+    </>
+  );
+}
+
+/** 출판 — 연재 · 전자책 */
+export async function PublishingSections() {
+  const { by } = await workData();
   const blog = await getBlogPosts();
   const postsFor = (a: Activity) => {
     const cats = SERIES_CATEGORIES[a.title];
@@ -86,10 +104,18 @@ export async function WorkSections() {
       <div className="grid-frame -mt-px grid-cols-1">
         <div className="cell text-right"><Link href="/journal" className="label ulink">Journal에서 모든 글 보기 →</Link></div>
       </div>
-      <Block id="books" title="Publications" note="전자책 · 출판" items={by("출판")} />
-      <Block id="works" title="Works" note="도구 · 프로젝트" items={works} />
+      <Block id="books" title="Books" note="전자책 · 출판" items={by("출판")} />
     </>
   );
+}
+
+/** Work 첫 화면에 보여줄 개수 */
+export async function WorkCounts() {
+  const { by } = await workData();
+  return {
+    architecture: ["건축", "대학원", "서비스", "비전"].reduce((n, a) => n + by(a).length, 0),
+    publishing: by("콘텐츠").length + by("출판").length,
+  };
 }
 
 export async function PublicTimeline() {

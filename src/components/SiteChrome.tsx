@@ -4,7 +4,7 @@ import { Mountain } from "./Mountain";
 export const PAGES = [
   { href: "/about", en: "About", ko: "무토에 대하여" },
   { href: "/journal", en: "Journal", ko: "기록" },
-  { href: "/work", en: "Work", ko: "연재 · 출판 · 작업" },
+  { href: "/work", en: "Work", ko: "건축 · 출판" },
   { href: "/contact", en: "Contact", ko: "채널 · 연락" },
 ];
 
@@ -30,7 +30,7 @@ export function SiteHeader({ current, tall = false }: { current?: string; tall?:
         <ul className="space-y-0.5 text-[11px]">
           {PAGES.map((p) => (
             <li key={p.href}>
-              <Link href={p.href} className={current === p.href ? "underline underline-offset-4" : "ulink"}>
+              <Link href={p.href} className={current?.startsWith(p.href) ? "underline underline-offset-4" : "ulink"}>
                 {p.en}
               </Link>
             </li>

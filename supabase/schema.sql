@@ -7,7 +7,7 @@ create table if not exists public.admins (
 
 create table if not exists public.activities (
   id uuid primary key default gen_random_uuid(),
-  area text not null check (area in ('채널','콘텐츠','출판','대학원','서비스','비전')),
+  area text not null check (area in ('건축','채널','콘텐츠','출판','대학원','서비스','비전')),
   title text not null,
   status text not null default '예정' check (status in ('예정','진행','검토','완료')),
   where_label text,
