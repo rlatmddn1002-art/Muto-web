@@ -3,9 +3,11 @@ import Link from "next/link";
 import { PublicSections, PublicTimeline, SectionsFallback } from "@/components/Sections";
 import { Mountain } from "@/components/Mountain";
 import { About } from "@/components/About";
+import { Journal } from "@/components/Journal";
 
 const NAV = [
   ["About", "#about"],
+  ["Journal", "#journal"],
   ["Series", "#series"],
   ["Publications", "#books"],
   ["Works", "#works"],
@@ -21,7 +23,10 @@ export default function Home() {
         {/* 01 · Masthead */}
         <section className="grid-frame grid-cols-2 md:grid-cols-4">
           <div className="cell md:h-72">
-            <a href="#top" className="text-[14px] font-medium tracking-tight">MUTO</a>
+            <a href="#top" className="inline-flex items-center gap-2 text-[14px] font-medium tracking-tight">
+              <Mountain className="w-3.5 text-ink" title="" />
+              MUTO
+            </a>
           </div>
           <div className="cell md:h-72 flex flex-col justify-between">
             <ul className="space-y-0.5 text-[11px]">
@@ -57,7 +62,7 @@ export default function Home() {
             </div>
           </div>
           <div className="cell md:col-span-3 md:row-span-2 flex min-h-[340px] flex-col items-center justify-center bg-[#f6f6f6] md:min-h-[520px]">
-            <Mountain className="fade-in w-56 md:w-80" />
+            <Mountain className="fade-in w-40 text-ink md:w-56" />
             <p className="mt-10 text-[9px] tracking-[.9em] text-ink/70">M U T O</p>
           </div>
         </section>
@@ -78,6 +83,10 @@ export default function Home() {
         </section>
 
         <About />
+
+        <Suspense fallback={null}>
+          <Journal />
+        </Suspense>
 
         <Suspense fallback={<SectionsFallback />}>
           <PublicSections />
