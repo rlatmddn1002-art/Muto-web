@@ -1,8 +1,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { PublicSections, PublicTimeline, SectionsFallback } from "@/components/Sections";
+import { Mountain } from "@/components/Mountain";
+import { About } from "@/components/About";
 
 const NAV = [
+  ["About", "#about"],
   ["Series", "#series"],
   ["Publications", "#books"],
   ["Works", "#works"],
@@ -47,14 +50,14 @@ export default function Home() {
               <span className="text-muted">Founder &amp; Architect</span>
             </div>
             <div className="text-[12px] leading-6 text-ink/80">
-              단단한 흙, 戊土에서 시작했습니다.
+              무토(戊土)는 큰 산을 의미합니다.
               <br />
-              건축을 글과 콘텐츠, 공간 기획으로 번역하며
-              우리가 사는 공간에 숨은 경험의 구조를 기록합니다.
+              건축을 기반으로 다양한 분야와 협업하며
+              문화적 확장이라는 나무를 피워나가는 집단이 되고자 합니다.
             </div>
           </div>
           <div className="cell md:col-span-3 md:row-span-2 flex min-h-[340px] flex-col items-center justify-center bg-[#f6f6f6] md:min-h-[520px]">
-            <div className="fade-in h-36 w-36 rounded-full bg-ink md:h-48 md:w-48" />
+            <Mountain className="fade-in w-56 md:w-80" />
             <p className="mt-10 text-[9px] tracking-[.9em] text-ink/70">M U T O</p>
           </div>
         </section>
@@ -62,10 +65,10 @@ export default function Home() {
         {/* 03 · What / Who / Mood / Origin */}
         <section className="grid-frame -mt-px grid-cols-2 md:grid-cols-4">
           {[
-            ["Practice", "Architecture\nWriting · Spatial direction"],
+            ["Practice", "Architecture · Stay\nCafé · Publishing"],
             ["Philosophy", "Sustainability\nStructure of experience"],
-            ["Mood", "Quiet luxury"],
-            ["Origin", "戊土 — 단단한 흙"],
+            ["Mood", "Calm form, quiet luxury"],
+            ["Origin", "戊土 — 큰 산"],
           ].map(([k, v]) => (
             <div key={k} className="cell">
               <p className="label font-medium">{k}</p>
@@ -73,6 +76,8 @@ export default function Home() {
             </div>
           ))}
         </section>
+
+        <About />
 
         <Suspense fallback={<SectionsFallback />}>
           <PublicSections />
