@@ -70,17 +70,6 @@ const KEYWORDS: [string, string, string][] = [
 export function About() {
   return (
     <section>
-      <div id="about" className="grid-frame -mt-px scroll-mt-6 grid-cols-2 md:grid-cols-4">
-        <div className="cell pt-16 md:pt-24">
-          <p className="text-[15px] font-medium">
-            <span className="accent-bar" />
-            About.
-          </p>
-        </div>
-        <div className="cell pt-16 text-right md:col-span-3 md:pt-24">
-          <p className="label">무토에 대하여</p>
-        </div>
-      </div>
 
       {ROWS.map(([en, ko, paras]) => (
         <div key={en} className="grid-frame -mt-px grid-cols-1 md:grid-cols-4">
@@ -112,6 +101,13 @@ export function About() {
         ))}
       </div>
 
+    </section>
+  );
+}
+
+export function Closing() {
+  return (
+    <section>
       <div className="grid-frame -mt-px grid-cols-1 md:grid-cols-4">
         <div className="cell">
           <p className="label font-medium">Closing</p>
@@ -125,9 +121,6 @@ export function About() {
             </p>
             <p>함께 작업을 이어 나가고 싶으신 분들은 언제든 연락 부탁드립니다. 감사합니다.</p>
           </div>
-          <a href="#channels" className="label ulink mt-6 inline-block">
-            Contact →
-          </a>
         </div>
       </div>
     </section>

@@ -6,20 +6,13 @@ function fmt(iso: string) {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
 }
 
-export async function Journal() {
-  const posts = (await getBlogPosts()).slice(0, 8);
-  if (!posts.length) return null;
+export async function Journal({ limit = 20 }: { limit?: number }) {
+  const posts = (await getBlogPosts()).slice(0, limit);
   const blogUrl = process.env.NAVER_BLOG_ID ? `https://blog.naver.com/${process.env.NAVER_BLOG_ID}` : null;
   return (
     <section>
-      <div id="journal" className="grid-frame -mt-px scroll-mt-6 grid-cols-2 md:grid-cols-4">
-        <div className="cell pt-16 md:pt-24">
-          <p className="text-[15px] font-medium">
-            <span className="accent-bar" />
-            Journal.
-          </p>
-        </div>
-        <div className="cell pt-16 text-right md:col-span-3 md:pt-24">
+      <div className="grid-frame -mt-px grid-cols-1 md:grid-cols-4">
+        <div className="cell md:col-span-4 md:text-right">
           {blogUrl ? (
             <a href={blogUrl} target="_blank" rel="noreferrer" className="label ulink">
               무토의 공간미학 — 블로그에서 전체 보기 →
@@ -29,6 +22,11 @@ export async function Journal() {
           )}
         </div>
       </div>
+      {posts.length === 0 && (
+        <div className="grid-frame -mt-px">
+          <div className="cell py-16 text-center sub">블로그에 쓴 글이 이곳에 자동으로 기록됩니다.</div>
+        </div>
+      )}
       {posts.map((p, i) => {
         const body = (
           <>
