@@ -1,5 +1,8 @@
 import { getPublicActivities, getPublicMilestones } from "@/lib/data";
 import type { Activity } from "@/lib/types";
+import { getBlogPosts, type BlogPost } from "@/lib/naver";
+import { SERIES_CATEGORIES, inCategories } from "@/lib/series";
+import Link from "next/link";
 
 const statusLabel = (s: Activity["status"]) =>
   ({ 예정: "Planned", 진행: "Ongoing", 검토: "In review", 완료: "Published" })[s];
@@ -17,7 +20,7 @@ function Header({ id, title, note }: { id: string; title: string; note?: string 
   );
 }
 
-function Row({ a, i }: { a: Activity; i: number }) {
+function Row({ a, i, posts }: { a: Activity; i: number; posts?: BlogPost[] }) {
   return (
     <div className="grid-frame -mt-px grid-cols-[56px_1fr] md:grid-cols-4">
       <div className="cell">
@@ -28,9 +31,26 @@ function Row({ a, i }: { a: Activity; i: number }) {
         <h3 className="serif text-[17px] leading-snug md:text-[20px]">{a.title}</h3>
         {a.summary && <p className="sub mt-2 max-w-[460px] leading-5">{a.summary}</p>}
         <p className="sub mt-2 md:hidden">{a.where_label}</p>
+        {posts && posts.length > 0 && (
+          <ul className="mt-5 space-y-1.5 border-t border-line pt-4">
+            {posts.slice(0, 3).map((p, k) =>
+              <li key={k} className="flex gap-4 text-[12px]">
+                <span className="sub w-16 shrink-0 tabular-nums">{p.date.slice(0, 10).replace(/-/g, ".")}</span>
+                {p.link ? (
+                  <a href={p.link} target="_blank" rel="noreferrer" className="ulink truncate">{p.title}</a>
+                ) : (
+                  <span className="truncate">{p.title}</span>
+                )}
+              </li>
+            )}
+          </ul>
+        )}
       </div>
       <div className="cell col-span-2 flex items-start justify-between gap-3 md:col-span-1 md:flex-col md:items-end">
         <span className={`tag ${a.status === "진행" ? "tag-on" : ""}`}>{statusLabel(a.status)}</span>
+        {posts && (
+          <span className="sub tabular-nums">최근 {posts.length}편</span>
+        )}
         {a.link && (
           <a href={a.link} target="_blank" rel="noreferrer" className="label ulink">View →</a>
         )}
@@ -39,13 +59,13 @@ function Row({ a, i }: { a: Activity; i: number }) {
   );
 }
 
-function Block({ id, title, note, items }: { id: string; title: string; note?: string; items: Activity[] }) {
+function Block({ id, title, note, items, postsFor }: { id: string; title: string; note?: string; items: Activity[]; postsFor?: (a: Activity) => BlogPost[] | undefined }) {
   if (!items.length) return null;
   return (
     <section>
       <Header id={id} title={title} note={note} />
       {items.map((a, i) => (
-        <Row key={a.id} a={a} i={i} />
+        <Row key={a.id} a={a} i={i} posts={postsFor?.(a)} />
       ))}
     </section>
   );
@@ -55,9 +75,17 @@ export async function WorkSections() {
   const all = await getPublicActivities();
   const by = (area: string) => all.filter((a) => a.area === area);
   const works = [...by("서비스"), ...by("대학원"), ...by("비전")];
+  const blog = await getBlogPosts();
+  const postsFor = (a: Activity) => {
+    const cats = SERIES_CATEGORIES[a.title];
+    return cats ? blog.filter((p) => inCategories(p.category, cats)) : undefined;
+  };
   return (
     <>
-      <Block id="series" title="Series" note="블로그 연재" items={by("콘텐츠")} />
+      <Block id="series" title="Series" note="블로그 연재 · 새 글은 자동으로 기록돼요" items={by("콘텐츠")} postsFor={postsFor} />
+      <div className="grid-frame -mt-px grid-cols-1">
+        <div className="cell text-right"><Link href="/journal" className="label ulink">Journal에서 모든 글 보기 →</Link></div>
+      </div>
       <Block id="books" title="Publications" note="전자책 · 출판" items={by("출판")} />
       <Block id="works" title="Works" note="도구 · 프로젝트" items={works} />
     </>

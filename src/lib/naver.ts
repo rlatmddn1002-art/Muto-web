@@ -8,7 +8,8 @@ export type BlogPost = {
   date: string; // ISO
 };
 
-const BLOG_ID = process.env.NAVER_BLOG_ID;
+export const BLOG_ID = process.env.NAVER_BLOG_ID || "nevereverdaily";
+export const BLOG_URL = `https://blog.naver.com/${BLOG_ID}`;
 
 function unwrap(s: string | undefined) {
   if (!s) return "";
@@ -53,7 +54,7 @@ export function parseNaverRss(xml: string): BlogPost[] {
 export async function getBlogPosts(): Promise<BlogPost[]> {
   "use cache";
   cacheLife("minutes");
-  if (!BLOG_ID) return demoPosts();
+  if (process.env.NAVER_DEMO === "1") return demoPosts();
   try {
     const res = await fetch(`https://rss.blog.naver.com/${BLOG_ID}.xml`, {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; MUTO-site/1.0)" },
@@ -68,11 +69,10 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 
 /** 블로그 아이디를 넣기 전 미리보기용 — 화면에 '예시'로 표시돼요 */
 function demoPosts(): BlogPost[] {
-  if (process.env.NAVER_DEMO !== "1") return [];
   const d = (s: string) => new Date(s).toISOString();
   return [
     { title: "예시 — 최신 글 제목이 여기에 표시돼요", link: "", category: "우리가 사는 공간의 비밀", excerpt: "글의 첫 문장이 짧게 이어져요.", date: d("2026-11-08") },
-    { title: "예시 — 연재 글은 카테고리와 함께 쌓여요", link: "", category: "공간미학", excerpt: "블로그에 글을 쓰면 몇 분 안에 홈페이지에도 기록돼요.", date: d("2026-11-03") },
-    { title: "예시 — 대학원, 출판 이야기도 함께", link: "", category: "생각", excerpt: "카테고리별로 걸러 볼 수도 있어요.", date: d("2026-10-27") },
+    { title: "예시 — 연재 글은 카테고리와 함께 쌓여요", link: "", category: "공간미학(국내)", excerpt: "블로그에 글을 쓰면 몇 분 안에 홈페이지에도 기록돼요.", date: d("2026-11-03") },
+    { title: "예시 — 해외 공간도 함께 기록돼요", link: "", category: "공간미학(해외)", excerpt: "카테고리별로 걸러 볼 수도 있어요.", date: d("2026-10-27") },
   ];
 }
