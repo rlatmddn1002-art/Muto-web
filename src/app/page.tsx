@@ -2,66 +2,93 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { PublicSections, PublicTimeline, SectionsFallback } from "@/components/Sections";
 
+const NAV = [
+  ["Series", "#series"],
+  ["Publications", "#books"],
+  ["Works", "#works"],
+  ["Channels", "#channels"],
+];
+
 export default function Home() {
   return (
-    <main>
-      <header className="sticky top-0 z-20 border-b border-black/5 bg-white/75 backdrop-blur-xl backdrop-saturate-150">
-        <nav className="mx-auto flex h-12 max-w-[980px] items-center justify-between px-6 text-[13px]">
-          <a href="#top" className="font-semibold tracking-[.32em]">MUTO</a>
-          <div className="flex gap-6 text-ink/70">
-            <a href="#series" className="hover:text-ink">연재</a>
-            <a href="#books" className="hover:text-ink">출판</a>
-            <a href="#works" className="hover:text-ink">작업</a>
-            <a href="#channels" className="hover:text-ink">채널</a>
+    <main id="top" className="px-4 py-6 md:px-10 md:py-14">
+      <div className="mx-auto max-w-[1200px]">
+        <p className="eyebrow mb-6 md:mb-10">Index</p>
+
+        {/* 01 · Masthead */}
+        <section className="grid-frame grid-cols-2 md:grid-cols-4">
+          <div className="cell md:h-72">
+            <a href="#top" className="text-[14px] font-medium tracking-tight">MUTO</a>
           </div>
-        </nav>
-      </header>
+          <div className="cell md:h-72 flex flex-col justify-between">
+            <ul className="space-y-0.5 text-[11px]">
+              {NAV.map(([l, h]) => (
+                <li key={l}><a href={h} className="ulink">{l}</a></li>
+              ))}
+            </ul>
+          </div>
+          <div className="cell hidden md:flex md:h-72 justify-end">
+            <span aria-hidden className="mt-1 block h-[5px] w-5 border-y border-ink" />
+          </div>
+          <div className="cell hidden md:block md:h-72 text-right">
+            <a href="#channels" className="label ulink">Contact</a>
+          </div>
+          <div className="cell col-span-2 md:col-span-4 border-t-0 py-10 md:py-14">
+            <h1 className="serif fade-in text-[40px] leading-[1.02] md:text-[72px]">MUTO Associates</h1>
+          </div>
+        </section>
 
-      <section id="top" className="px-6 pb-28 pt-28 text-center md:pb-36 md:pt-40">
-        <p className="eyebrow fade-in">戊土 · Architecture · Writing · Space</p>
-        <h1 className="serif fade-in d2 mt-6 text-[56px] leading-[1.05] md:text-[96px]">MUTO Associates</h1>
-        <p className="fade-in d3 mx-auto mt-6 max-w-[620px] text-[19px] leading-[1.6] text-muted md:text-[24px]">
-          건축을 글과 콘텐츠, 공간 기획으로 번역합니다.
-          <br className="hidden md:block" /> 우리가 사는 공간에 숨은 경험의 구조를 기록합니다.
-        </p>
-        <div className="fade-in d3 mt-8 flex justify-center gap-8">
-          <a href="#series" className="link-more">연재 보기 ›</a>
-          <a href="#books" className="link-more">출판 보기 ›</a>
-        </div>
-        <div className="mx-auto mt-20 accent-bar" />
-        <p className="mt-6 text-[13px] text-muted">Founder &amp; Architect · KIM Seung woo</p>
-      </section>
+        {/* 02 · Sign + profile */}
+        <section className="grid-frame -mt-px grid-cols-1 md:grid-cols-4">
+          <div className="cell md:row-span-2 flex flex-col justify-between gap-16">
+            <div className="label leading-5">
+              KIM Seung woo
+              <br />
+              <span className="text-muted">Founder &amp; Architect</span>
+            </div>
+            <div className="text-[12px] leading-6 text-ink/80">
+              단단한 흙, 戊土에서 시작했습니다.
+              <br />
+              건축을 글과 콘텐츠, 공간 기획으로 번역하며
+              우리가 사는 공간에 숨은 경험의 구조를 기록합니다.
+            </div>
+          </div>
+          <div className="cell md:col-span-3 md:row-span-2 flex min-h-[340px] flex-col items-center justify-center bg-[#f6f6f6] md:min-h-[520px]">
+            <div className="fade-in h-36 w-36 rounded-full bg-ink md:h-48 md:w-48" />
+            <p className="mt-10 text-[9px] tracking-[.9em] text-ink/70">M U T O</p>
+          </div>
+        </section>
 
-      <section className="bg-paper px-6 py-24 md:py-32">
-        <div className="mx-auto grid max-w-[980px] gap-14 text-center md:grid-cols-3 md:gap-8">
+        {/* 03 · What / Who / Mood / Origin */}
+        <section className="grid-frame -mt-px grid-cols-2 md:grid-cols-4">
           {[
-            ["持続", "지속가능성", "오래 머물 수 있는 공간과 생각을 만듭니다."],
-            ["構造", "경험의 구조", "공간이 사람에게 남기는 감각을 설계합니다."],
-            ["静寂", "콰이어트 럭셔리", "드러내기보다 오래 남는 품격을 택합니다."],
-          ].map(([jp, ko, d]) => (
-            <div key={ko}>
-              <p className="text-[13px] tracking-[.4em] text-muted">{jp}</p>
-              <p className="serif mt-4 text-[28px]">{ko}</p>
-              <p className="mx-auto mt-3 max-w-[240px] text-[15px] leading-7 text-muted">{d}</p>
+            ["Practice", "Architecture\nWriting · Spatial direction"],
+            ["Philosophy", "Sustainability\nStructure of experience"],
+            ["Mood", "Quiet luxury"],
+            ["Origin", "戊土 — 단단한 흙"],
+          ].map(([k, v]) => (
+            <div key={k} className="cell">
+              <p className="label font-medium">{k}</p>
+              <p className="sub mt-1 whitespace-pre-line">{v}</p>
             </div>
           ))}
-        </div>
-      </section>
+        </section>
 
-      <Suspense fallback={<SectionsFallback />}>
-        <PublicSections />
-      </Suspense>
+        <Suspense fallback={<SectionsFallback />}>
+          <PublicSections />
+        </Suspense>
 
-      <Suspense fallback={null}>
-        <PublicTimeline />
-      </Suspense>
+        <Suspense fallback={null}>
+          <PublicTimeline />
+        </Suspense>
 
-      <footer className="bg-paper">
-        <div className="mx-auto flex max-w-[980px] items-center justify-between border-t border-line px-6 py-6 text-[12px] text-muted">
-          <span>Copyright © MUTO Associates. All rights reserved.</span>
-          <Link href="/admin" className="hover:text-ink">관리</Link>
-        </div>
-      </footer>
+        {/* Footer */}
+        <footer className="grid-frame -mt-px grid-cols-3 md:grid-cols-4">
+          <div className="cell label">© MUTO Associates</div>
+          <div className="cell label md:col-span-2"><a href="#top" className="ulink">Top</a></div>
+          <div className="cell label text-right"><Link href="/admin" className="ulink">Admin</Link></div>
+        </footer>
+      </div>
     </main>
   );
 }

@@ -8,10 +8,10 @@ import { seedActivities, seedMilestones } from "@/lib/seed";
 import { AREAS, STATUSES, type Activity, type Milestone, type Status } from "@/lib/types";
 
 const STATUS_STYLE: Record<Status, string> = {
-  예정: "bg-white text-[#1d1d1f] ring-1 ring-inset ring-[#d2d2d7]",
-  진행: "bg-[#1d1d1f] text-white",
-  검토: "bg-[#6e6e73] text-white",
-  완료: "bg-[#e8e8ed] text-[#6e6e73]",
+  예정: "bg-white text-[#8c8c8c] border border-[#e4e4e4]",
+  진행: "bg-[#111] text-white border border-[#111]",
+  검토: "bg-white text-[#111] border border-[#111]",
+  완료: "bg-[#f3f3f3] text-[#8c8c8c] border border-[#f3f3f3]",
 };
 
 type Tab = "activities" | "milestones" | "old";
@@ -183,11 +183,11 @@ export default function AdminPage() {
   if (!preview && !session) return <Login />;
 
   return (
-    <main className="min-h-screen bg-paper"><div className="mx-auto max-w-3xl px-4 pb-28 pt-8 md:px-6">
+    <main className="min-h-screen bg-ivory"><div className="mx-auto max-w-3xl px-4 pb-28 pt-6 md:px-6 md:pt-12">
       <header className="flex items-center justify-between">
         <div>
-          <p className="eyebrow">MUTO Associates</p>
-          <h1 className="serif mt-1 text-[34px]">활동 관리</h1>
+          <p className="text-[14px] font-medium tracking-tight">MUTO</p>
+          <h1 className="serif mt-10 text-[32px] md:text-[44px]">활동 관리</h1>
         </div>
         <div className="flex items-center gap-2 text-xs">
           <Link href="/" className="btn btn-ghost">홈페이지</Link>
@@ -200,12 +200,12 @@ export default function AdminPage() {
       </header>
 
       {preview && (
-        <p className="mt-5 rounded-2xl bg-white px-4 py-3 text-[13px] leading-6 text-muted">
+        <p className="mt-6 border border-line bg-white px-4 py-3 text-[11px] leading-5 text-muted">
           미리보기 모드예요. Supabase를 연결하면(README 참고) 로그인 후 수정한 내용이 저장되고 홈페이지에 바로 반영돼요.
         </p>
       )}
 
-      <section className="mt-6 grid grid-cols-4 gap-2">
+      <section className="mt-6 grid grid-cols-4 gap-px border border-line bg-line">
         {counts.map(({ s, n }) => (
           <button
             key={s}
@@ -213,18 +213,18 @@ export default function AdminPage() {
               setTab("activities");
               setStatusFilter(statusFilter === s ? "" : s);
             }}
-            className={`rounded-2xl p-4 text-left transition-colors ${statusFilter === s ? "bg-ink text-white" : "bg-white"}`}
+            className={`p-4 text-left transition-colors ${statusFilter === s ? "bg-ink text-white" : "bg-white"}`}
           >
-            <span className={`text-xs ${statusFilter === s ? "text-white/70" : "text-muted"}`}>{s}</span>
-            <span className="serif mt-1 block text-[28px] tabular-nums">{n}</span>
+            <span className={`text-[11px] ${statusFilter === s ? "text-white/70" : "text-muted"}`}>{s}</span>
+            <span className="serif mt-6 block text-[28px] tabular-nums">{n}</span>
           </button>
         ))}
       </section>
 
       {nextActions.length > 0 && (
-        <section className="mt-4 rounded-2xl bg-white p-5">
-          <p className="text-sm font-medium">다음 행동</p>
-          <ul className="mt-2 space-y-2 text-sm">
+        <section className="-mt-px border border-line bg-white p-4">
+          <p className="text-[12px] font-medium">다음 행동</p>
+          <ul className="mt-3 space-y-1.5 text-[12px]">
             {nextActions.map((a) => (
               <li key={a.id} className="flex gap-2">
                 <span>→</span>
@@ -238,7 +238,7 @@ export default function AdminPage() {
         </section>
       )}
 
-      <nav className="mt-8 inline-flex gap-1 rounded-full bg-[#e8e8ed] p-1 text-[13px]">
+      <nav className="mt-10 flex gap-6 border-b border-line text-[12px]">
         {(
           [
             ["activities", `활동 ${current.length}`],
@@ -249,7 +249,7 @@ export default function AdminPage() {
           <button
             key={k}
             onClick={() => setTab(k)}
-            className={`rounded-full px-4 py-1.5 transition-colors ${tab === k ? "bg-white font-medium text-ink shadow-sm" : "text-muted"}`}
+            className={`-mb-px border-b py-2 ${tab === k ? "border-ink text-ink" : "border-transparent text-muted"}`}
           >
             {label}
           </button>
@@ -273,30 +273,30 @@ export default function AdminPage() {
             </select>
           </div>
           {AREAS.filter((ar) => shown.some((a) => a.area === ar)).map((ar) => (
-            <section key={ar} className="mt-8">
-              <h2 className="px-1 text-[13px] font-medium text-muted">{ar}</h2>
-              <ul className="mt-2 space-y-2">
+            <section key={ar} className="mt-10">
+              <h2 className="text-[13px] font-medium"><span className="accent-bar" />{ar}.</h2>
+              <ul className="mt-3">
                 {shown
                   .filter((a) => a.area === ar)
                   .map((a) => (
-                    <li key={a.id} className="rounded-2xl bg-white p-4">
+                    <li key={a.id} className="-mt-px border border-line bg-white p-4">
                       <div className="flex items-start gap-3">
                         <select
                           aria-label="상태"
                           value={a.status}
                           onChange={(e) => quickStatus(a, e.target.value as Status)}
-                          className={`shrink-0 cursor-pointer appearance-none rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLE[a.status]}`}
+                          className={`shrink-0 cursor-pointer appearance-none px-2 py-0.5 text-[11px] ${STATUS_STYLE[a.status]}`}
                         >
                           {STATUSES.map((s) => (
                             <option key={s}>{s}</option>
                           ))}
                         </select>
                         <button className="min-w-0 flex-1 text-left" onClick={() => setEditingA(a)}>
-                          <p className="text-[16px] font-medium leading-snug">{a.title}</p>
-                          <p className="mt-0.5 text-xs text-muted">
+                          <p className="text-[15px] font-medium leading-snug tracking-tight">{a.title}</p>
+                          <p className="mt-1 text-[11px] text-muted">
                             {[a.where_label, progressText(a), `업데이트 ${fmtDate(a.updated_at)}`].filter(Boolean).join(" · ")}
                           </p>
-                          {a.next_action && <p className="mt-2 text-sm">→ {a.next_action}</p>}
+                          {a.next_action && <p className="mt-2 text-[12px]">→ {a.next_action}</p>}
                         </button>
                         <span className={`shrink-0 text-[10px] ${a.is_public ? "text-ink" : "text-muted"}`}>
                           {a.is_public ? "공개" : "비공개"}
@@ -316,11 +316,11 @@ export default function AdminPage() {
       )}
 
       {tab === "milestones" && (
-        <ol className="mt-6 space-y-2">
+        <ol className="mt-6">
           {milestones.map((m) => (
             <li key={m.id}>
-              <button onClick={() => setEditingM(m)} className="flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left">
-                <span className={`rounded-full px-3 py-1 text-xs font-medium ${STATUS_STYLE[m.status]}`}>{m.status}</span>
+              <button onClick={() => setEditingM(m)} className="-mt-px flex w-full items-center gap-3 border border-line bg-white p-4 text-left">
+                <span className={`px-2 py-0.5 text-[11px] ${STATUS_STYLE[m.status]}`}>{m.status}</span>
                 <span className="w-24 shrink-0 text-xs text-muted">{m.when_label}</span>
                 <span className="flex-1">{m.label}</span>
                 <span className={`text-[10px] ${m.is_public ? "text-ink" : "text-muted"}`}>{m.is_public ? "공개" : "비공개"}</span>
@@ -331,10 +331,10 @@ export default function AdminPage() {
       )}
 
       {tab === "old" && (
-        <ul className="mt-6 space-y-2">
+        <ul className="mt-6">
           {old.length === 0 && <p className="text-sm text-muted">보관된 항목이 없어요.</p>}
           {old.map((a) => (
-            <li key={a.id} className="flex items-center gap-3 rounded-2xl border border-dashed border-line p-4 opacity-70">
+            <li key={a.id} className="-mt-px flex items-center gap-3 border border-dashed border-[#cfcfcf] bg-white/60 p-4 text-muted">
               <div className="flex-1">
                 <p className="line-through">{a.title}</p>
                 <p className="text-xs text-muted">
@@ -352,13 +352,13 @@ export default function AdminPage() {
 
       <button
         onClick={() => (tab === "milestones" ? setEditingM(blankMilestone()) : setEditingA(blankActivity()))}
-        className="btn btn-dark fixed bottom-6 right-6 z-30 !px-5 !py-3 shadow-[0_8px_24px_rgba(0,0,0,.18)]"
+        className="btn btn-dark fixed bottom-6 right-6 z-30 !px-5 !py-3"
       >
         + {tab === "milestones" ? "마일스톤" : "활동"} 추가
       </button>
 
       {msg && (
-        <div className="fixed bottom-24 left-1/2 z-40 -translate-x-1/2 rounded-full bg-ink/90 px-4 py-2 text-xs text-white backdrop-blur">{msg}</div>
+        <div className="fixed bottom-24 left-1/2 z-40 -translate-x-1/2 bg-ink/90 px-4 py-2 text-xs text-white backdrop-blur">{msg}</div>
       )}
 
       {editingA && (
@@ -392,11 +392,10 @@ function Login() {
     if (error) setErr("로그인하지 못했어요. 이메일과 비밀번호를 확인해 주세요.");
   }
   return (
-    <main className="flex min-h-screen items-center justify-center bg-paper px-6">
-      <div className="w-full max-w-sm rounded-[28px] bg-white p-8 text-center">
-        <p className="eyebrow">MUTO Associates</p>
-        <h1 className="serif mt-2 text-3xl">관리 로그인</h1>
-        <div className="mx-auto mt-6 accent-bar" />
+    <main className="flex min-h-screen items-center justify-center bg-ivory px-6">
+      <div className="w-full max-w-sm border border-line bg-white p-8">
+        <p className="text-[14px] font-medium tracking-tight">MUTO</p>
+        <h1 className="serif mt-16 text-[28px]">관리 로그인</h1>
         <div className="mt-8 space-y-3" role="form">
           <input className="input" type="email" placeholder="이메일" value={email} onChange={(e) => setEmail(e.target.value)} />
           <input className="input" type="password" placeholder="비밀번호" value={pw} onChange={(e) => setPw(e.target.value)} onKeyDown={(e) => e.key === "Enter" && submit(e)} />
@@ -413,7 +412,7 @@ function Login() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs text-muted">{label}</span>
+      <span className="mb-1 block text-[11px] text-muted">{label}</span>
       {children}
     </label>
   );
@@ -421,13 +420,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 backdrop-blur-sm md:items-center" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/20 md:items-center" onClick={onClose}>
       <div
-        className="max-h-[92vh] w-full overflow-y-auto rounded-t-[28px] bg-white p-6 md:max-w-lg md:rounded-[28px]"
+        className="max-h-[92vh] w-full overflow-y-auto border-t border-ink bg-white p-6 md:max-w-lg md:border"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="serif text-xl">{title}</h2>
+          <h2 className="serif text-[20px]">{title}</h2>
           <button onClick={onClose} className="text-sm text-muted">
             닫기
           </button>

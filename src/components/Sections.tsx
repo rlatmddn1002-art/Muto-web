@@ -1,45 +1,52 @@
 import { getPublicActivities, getPublicMilestones } from "@/lib/data";
 import type { Activity } from "@/lib/types";
 
-const statusLabel = (a: Activity) => (a.status === "완료" ? "출간" : a.status === "진행" ? "진행 중" : a.status);
+const statusLabel = (s: Activity["status"]) =>
+  ({ 예정: "Planned", 진행: "Ongoing", 검토: "In review", 완료: "Published" })[s];
 
-function Card({ a, large = false }: { a: Activity; large?: boolean }) {
-  const body = (
-    <div className={`card flex h-full flex-col ${large ? "p-10 md:p-12" : "p-8"}`}>
-      <p className="text-[12px] font-medium text-muted">
-        {a.where_label}
-        {a.where_label ? " · " : ""}
-        {statusLabel(a)}
-      </p>
-      <h3 className={`serif mt-3 ${large ? "text-[32px] md:text-[40px] leading-[1.15]" : "text-[24px] leading-[1.25]"}`}>{a.title}</h3>
-      {a.summary && <p className="mt-4 text-[15px] leading-7 text-muted">{a.summary}</p>}
-      {a.link && <span className="link-more mt-auto pt-6">자세히 보기 ›</span>}
+function Header({ id, title, note }: { id: string; title: string; note?: string }) {
+  return (
+    <div id={id} className="grid-frame -mt-px scroll-mt-6 grid-cols-2 md:grid-cols-4">
+      <div className="cell pt-16 md:pt-24">
+        <p className="text-[15px] font-medium"><span className="accent-bar" />{title}.</p>
+      </div>
+      <div className="cell pt-16 md:col-span-3 md:pt-24 text-right">
+        {note && <p className="label">{note}</p>}
+      </div>
     </div>
-  );
-  return a.link ? (
-    <a href={a.link} target="_blank" rel="noreferrer" className="block transition-transform duration-300 hover:scale-[1.01]">
-      {body}
-    </a>
-  ) : (
-    body
   );
 }
 
-function Block({ id, eyebrow, title, items, large }: { id: string; eyebrow: string; title: string; items: Activity[]; large?: boolean }) {
+function Row({ a, i }: { a: Activity; i: number }) {
+  return (
+    <div className="grid-frame -mt-px grid-cols-[56px_1fr] md:grid-cols-4">
+      <div className="cell">
+        <p className="label tabular-nums">{String(i + 1).padStart(2, "0")}</p>
+        <p className="sub mt-1 hidden md:block">{a.where_label}</p>
+      </div>
+      <div className="cell md:col-span-2">
+        <h3 className="serif text-[17px] leading-snug md:text-[20px]">{a.title}</h3>
+        {a.summary && <p className="sub mt-2 max-w-[460px] leading-5">{a.summary}</p>}
+        <p className="sub mt-2 md:hidden">{a.where_label}</p>
+      </div>
+      <div className="cell col-span-2 flex items-start justify-between gap-3 md:col-span-1 md:flex-col md:items-end">
+        <span className={`tag ${a.status === "진행" ? "tag-on" : ""}`}>{statusLabel(a.status)}</span>
+        {a.link && (
+          <a href={a.link} target="_blank" rel="noreferrer" className="label ulink">View →</a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Block({ id, title, note, items }: { id: string; title: string; note?: string; items: Activity[] }) {
   if (!items.length) return null;
   return (
-    <section id={id} className="scroll-mt-12 px-6 py-24 md:py-32">
-      <div className="mx-auto max-w-[980px]">
-        <div className="text-center">
-          <p className="eyebrow">{eyebrow}</p>
-          <h2 className="serif mt-3 text-[40px] md:text-[56px]">{title}</h2>
-        </div>
-        <div className={`mt-14 grid gap-5 ${items.length > 1 ? "md:grid-cols-2" : "mx-auto max-w-[640px]"}`}>
-          {items.map((a) => (
-            <Card key={a.id} a={a} large={large} />
-          ))}
-        </div>
-      </div>
+    <section>
+      <Header id={id} title={title} note={note} />
+      {items.map((a, i) => (
+        <Row key={a.id} a={a} i={i} />
+      ))}
     </section>
   );
 }
@@ -51,40 +58,31 @@ export async function PublicSections() {
   const channels = by("채널");
   return (
     <>
-      <Block id="series" eyebrow="Series" title="연재" items={by("콘텐츠")} large />
-      <div className="border-t border-black/5">
-        <Block id="books" eyebrow="Publications" title="출판" items={by("출판")} />
-      </div>
-      <div className="border-t border-black/5">
-        <Block id="works" eyebrow="Works" title="작업" items={works} />
-      </div>
+      <Block id="series" title="Series" note="블로그 연재" items={by("콘텐츠")} />
+      <Block id="books" title="Publications" note="전자책 · 출판" items={by("출판")} />
+      <Block id="works" title="Works" note="도구 · 프로젝트" items={works} />
       {channels.length > 0 && (
-        <section id="channels" className="scroll-mt-12 bg-paper px-6 py-24 md:py-32">
-          <div className="mx-auto max-w-[980px] text-center">
-            <p className="eyebrow">Channels</p>
-            <h2 className="serif mt-3 text-[40px] md:text-[56px]">MUTO를 만나는 곳</h2>
-            <ul className="mt-14 grid gap-5 md:grid-cols-3">
-              {channels.map((c) => {
-                const inner = (
-                  <div className="rounded-[22px] bg-white px-6 py-10">
-                    <p className="text-[12px] tracking-[.2em] text-muted">{c.where_label}</p>
-                    <p className="serif mt-3 text-[22px]">{c.title}</p>
-                    {c.link && <p className="link-more mt-4 !text-[15px]">방문하기 ›</p>}
-                  </div>
-                );
-                return (
-                  <li key={c.id}>
-                    {c.link ? (
-                      <a href={c.link} target="_blank" rel="noreferrer" className="block transition-transform duration-300 hover:scale-[1.02]">
-                        {inner}
-                      </a>
-                    ) : (
-                      inner
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+        <section>
+          <Header id="channels" title="Channels" note="MUTO를 만나는 곳" />
+          <div className="grid-frame -mt-px grid-cols-1 md:grid-cols-4">
+            {channels.map((c) => {
+              const inner = (
+                <>
+                  <p className="sub">{c.where_label}</p>
+                  <p className="serif mt-8 text-[17px]">{c.title}</p>
+                </>
+              );
+              return c.link ? (
+                <a key={c.id} href={c.link} target="_blank" rel="noreferrer" className="cell block transition-colors hover:bg-[#f6f6f6]">
+                  {inner}
+                </a>
+              ) : (
+                <div key={c.id} className="cell">{inner}</div>
+              );
+            })}
+            {Array.from({ length: (4 - (channels.length % 4)) % 4 }).map((_, i) => (
+              <div key={`f${i}`} className="cell hidden md:block" />
+            ))}
           </div>
         </section>
       )}
@@ -96,31 +94,24 @@ export async function PublicTimeline() {
   const ms = await getPublicMilestones();
   if (!ms.length) return null;
   return (
-    <section className="px-6 py-24 md:py-32">
-      <div className="mx-auto max-w-[640px]">
-        <p className="eyebrow text-center">Timeline</p>
-        <ol className="mt-12">
-          {ms.map((m) => (
-            <li key={m.id} className="flex gap-8 border-t border-line py-5 text-[15px]">
-              <span className="w-24 shrink-0 tabular-nums text-muted">{m.when_label}</span>
-              <span>{m.label}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
+    <section>
+      <Header id="timeline" title="Timeline" />
+      {ms.map((m) => (
+        <div key={m.id} className="grid-frame -mt-px grid-cols-[96px_1fr] md:grid-cols-4">
+          <div className="cell label tabular-nums">{m.when_label}</div>
+          <div className="cell md:col-span-3">{m.label}</div>
+        </div>
+      ))}
     </section>
   );
 }
 
 export function SectionsFallback() {
   return (
-    <div className="mx-auto max-w-[980px] px-6 py-32">
-      <div className="mx-auto h-12 w-40 animate-pulse rounded-full bg-paper" />
-      <div className="mt-14 grid gap-5 md:grid-cols-2">
-        {[0, 1].map((i) => (
-          <div key={i} className="h-64 animate-pulse rounded-[22px] bg-paper" />
-        ))}
-      </div>
+    <div className="grid-frame -mt-px grid-cols-4">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="cell h-40 animate-pulse" />
+      ))}
     </div>
   );
 }
