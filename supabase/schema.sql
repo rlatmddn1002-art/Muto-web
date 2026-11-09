@@ -17,6 +17,7 @@ create table if not exists public.activities (
   progress_label text,
   progress_value integer,          -- 비어 있으면 '미확인'
   progress_target integer,
+  image_url text,                 -- 대표 사진
   is_public boolean not null default false,
   archived boolean not null default false,   -- OLD · 이전 버전
   sort integer not null default 0,
@@ -61,3 +62,12 @@ create policy "admin all milestones" on public.milestones
 -- 다른 기기에서 고친 내용이 앱에 바로 반영되도록
 alter publication supabase_realtime add table public.activities;
 alter publication supabase_realtime add table public.milestones;
+
+-- 대표 사진 저장소 (공개 읽기, 관리자만 업로드)
+insert into storage.buckets (id, name, public) values ('media', 'media', true) on conflict do nothing;
+drop policy if exists "admin upload media" on storage.objects;
+create policy "admin upload media" on storage.objects
+  for all to authenticated using (bucket_id = 'media' and public.is_admin()) with check (bucket_id = 'media' and public.is_admin());
+
+-- 이미 schema.sql을 실행한 경우 이 줄만 실행하면 돼요
+alter table public.activities add column if not exists image_url text;

@@ -39,6 +39,7 @@ const blankActivity = (): Activity => ({
   progress_label: null,
   progress_value: null,
   progress_target: null,
+  image_url: null,
   is_public: false,
   archived: false,
   sort: 99,
@@ -488,6 +489,9 @@ function ActivityEditor({
         <Field label="결과물 링크">
           <input className="input" type="url" placeholder="https://" value={a.link ?? ""} onChange={(e) => set("link", nn(e.target.value))} />
         </Field>
+        <Field label="대표 사진 (건축 프로젝트 등)">
+          <ImagePicker value={a.image_url} onChange={(v) => set("image_url", v)} />
+        </Field>
         <div className="grid grid-cols-3 gap-3">
           <Field label="진척 기준">
             <input className="input" placeholder="게시 편수" value={a.progress_label ?? ""} onChange={(e) => set("progress_label", nn(e.target.value))} />
@@ -530,6 +534,43 @@ function ActivityEditor({
           ))}
       </div>
     </Sheet>
+  );
+}
+
+function ImagePicker({ value, onChange }: { value: string | null; onChange: (v: string | null) => void }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  async function upload(file: File) {
+    setErr("");
+    const db = browserSupabase();
+    if (!db) {
+      onChange(URL.createObjectURL(file)); // 미리보기 모드: 화면에만
+      return;
+    }
+    setBusy(true);
+    const path = `projects/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+    const { error } = await db.storage.from("media").upload(path, file, { upsert: false });
+    setBusy(false);
+    if (error) return setErr("사진을 올리지 못했어요.");
+    onChange(db.storage.from("media").getPublicUrl(path).data.publicUrl);
+  }
+  return (
+    <div className="flex items-center gap-3">
+      {value && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={value} alt="" className="h-14 w-20 border border-line object-cover" />
+      )}
+      <label className="btn btn-ghost cursor-pointer">
+        {busy ? "올리는 중…" : value ? "사진 바꾸기" : "사진 선택"}
+        <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+      </label>
+      {value && (
+        <button type="button" className="sub" onClick={() => onChange(null)}>
+          빼기
+        </button>
+      )}
+      {err && <span className="text-[11px]">{err}</span>}
+    </div>
   );
 }
 

@@ -21,6 +21,7 @@ function Header({ id, title, note }: { id: string; title: string; note?: string 
 }
 
 function Row({ a, i, posts }: { a: Activity; i: number; posts?: BlogPost[] }) {
+  if (a.image_url) return <ImageRow a={a} i={i} />;
   return (
     <div className="grid-frame -mt-px grid-cols-[56px_1fr] md:grid-cols-4">
       <div className="cell">
@@ -54,6 +55,31 @@ function Row({ a, i, posts }: { a: Activity; i: number; posts?: BlogPost[] }) {
         {a.link && (
           <a href={a.link} target="_blank" rel="noreferrer" className="label ulink">View →</a>
         )}
+      </div>
+    </div>
+  );
+}
+
+/** 사진이 있는 프로젝트 — 레퍼런스처럼 큰 사진 + 옆에 짧은 설명 */
+function ImageRow({ a, i }: { a: Activity; i: number }) {
+  return (
+    <div className="grid-frame -mt-px grid-cols-1 md:grid-cols-4">
+      <div className="cell flex flex-col justify-between gap-8">
+        <div>
+          <p className="label tabular-nums">{String(i + 1).padStart(2, "0")}</p>
+          <h3 className="serif mt-6 text-[20px] leading-snug">{a.title}</h3>
+          <p className="sub mt-1">{a.where_label}</p>
+        </div>
+        <div className="space-y-3">
+          {a.summary && <p className="text-[12px] leading-[1.8] text-ink/80">{a.summary}</p>}
+          {a.link && (
+            <a href={a.link} target="_blank" rel="noreferrer" className="label ulink">View →</a>
+          )}
+        </div>
+      </div>
+      <div className="cell md:col-span-3">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={a.image_url!} alt={a.title} className="aspect-[16/10] w-full object-cover grayscale-[15%]" loading="lazy" />
       </div>
     </div>
   );

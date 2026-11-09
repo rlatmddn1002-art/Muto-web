@@ -22,6 +22,7 @@ const a = (
   progress_label: null,
   progress_value: null,
   progress_target: null,
+  image_url: null,
   is_public: true,
   archived: false,
   sort: 0,

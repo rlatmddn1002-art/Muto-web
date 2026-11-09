@@ -17,6 +17,7 @@ export type Activity = {
   progress_label: string | null; // 진척 기준 (게시 편수, 원고 완료 편수 …)
   progress_value: number | null; // null = 미확인
   progress_target: number | null;
+  image_url: string | null; // 대표 사진 (건축 프로젝트 등)
   is_public: boolean; // 홈페이지에 공개
   archived: boolean; // OLD · 이전 버전
   sort: number;
