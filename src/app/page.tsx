@@ -9,8 +9,8 @@ export default function Home() {
       <SiteHeader tall />
 
       <section className="grid-frame -mt-px grid-cols-1 md:grid-cols-4">
-        <div className="cell flex flex-col justify-between gap-16 md:min-h-[460px]">
-          <h1 className="serif fade-in text-[40px] leading-[1.02] md:text-[44px] lg:text-[48px]">
+        <div className="cell @container flex flex-col justify-between gap-16 md:min-h-[460px]">
+          <h1 className="serif fade-in text-[min(17cqw,48px)] leading-[1.02]">
             MUTO
             <br />
             Associates
