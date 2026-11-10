@@ -1,7 +1,7 @@
 import { getPublicActivities, getPublicMilestones } from "@/lib/data";
 import type { Activity } from "@/lib/types";
 import { getBlogPosts, type BlogPost } from "@/lib/naver";
-import { SERIES_CATEGORIES, WORKS_CATEGORIES, inCategories, workOwner, workTitle } from "@/lib/series";
+import { SERIES_CATEGORIES, SERIES_LOGOS, WORKS_CATEGORIES, inCategories, workOwner, workTitle } from "@/lib/series";
 import { BlogImage } from "./BlogImage";
 import Link from "next/link";
 
@@ -25,9 +25,15 @@ function Row({ a, i, posts }: { a: Activity; i: number; posts?: BlogPost[] }) {
   if (a.image_url) return <ImageRow a={a} i={i} />;
   return (
     <div className="grid-frame -mt-px grid-cols-[56px_1fr] md:grid-cols-4">
-      <div className="cell">
-        <p className="label tabular-nums">{String(i + 1).padStart(2, "0")}</p>
-        <p className="sub mt-1 hidden md:block">{a.where_label}</p>
+      <div className="cell flex flex-col justify-between gap-6">
+        <div>
+          <p className="label tabular-nums">{String(i + 1).padStart(2, "0")}</p>
+          <p className="sub mt-1 hidden md:block">{a.where_label}</p>
+        </div>
+        {SERIES_LOGOS[a.title] && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={SERIES_LOGOS[a.title]} alt={`${a.title} 로고`} className="hidden w-[72px] md:block" />
+        )}
       </div>
       <div className="cell md:col-span-2">
         <h3 className="text-[15px] font-medium leading-snug md:text-[16px]">{a.title}</h3>

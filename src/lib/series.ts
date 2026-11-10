@@ -7,6 +7,11 @@ export const SERIES_CATEGORIES: Record<string, string[]> = {
   공간미학: ["공간미학(국내)", "공간미학(해외)"],
 };
 
+/** 연재 로고 (public/brand) */
+export const SERIES_LOGOS: Record<string, string> = {
+  공간미학: "/brand/series-gonggan-mihak.png",
+};
+
 const norm = (s: string | null | undefined) => (s ?? "").replace(/\s+/g, "").toLowerCase();
 
 export function inCategories(category: string | null, cats: string[]) {
