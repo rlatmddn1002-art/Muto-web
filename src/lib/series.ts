@@ -9,6 +9,7 @@ export const SERIES_CATEGORIES: Record<string, string[]> = {
 
 /** 연재 로고 (public/brand) */
 export const SERIES_LOGOS: Record<string, string> = {
+  "우리가 사는 공간의 비밀": "/brand/series-usabi.png",
   공간미학: "/brand/series-gonggan-mihak.png",
 };
 
