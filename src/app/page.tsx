@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { PAGES, Shell, SiteFooter, SiteHeader } from "@/components/SiteChrome";
 
 export default function Home() {
@@ -21,8 +22,7 @@ export default function Home() {
           </p>
         </div>
         <div className="cell flex min-h-[320px] items-center justify-center md:col-span-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/muto-logo.png" alt="戊土 MUTO ASSOCIATES — Architecture studio" className="fade-in w-56 md:w-[340px]" />
+          <Logo variant="stacked" className="fade-in" />
         </div>
       </section>
 
@@ -31,7 +31,7 @@ export default function Home() {
           <Link key={p.href} href={p.href} className="cell group flex min-h-[150px] flex-col justify-between transition-colors hover:bg-[#f6f6f6] md:min-h-[200px]">
             <span className="label tabular-nums">{String(i + 1).padStart(2, "0")}</span>
             <span>
-              <span className="serif block text-[20px] md:text-[24px]">{p.en}</span>
+              <span className="serif block text-[17px] md:text-[19px]">{p.en}</span>
               <span className="sub mt-1 flex justify-between">
                 {p.ko}
                 <span className="text-ink transition-transform group-hover:translate-x-1">→</span>

@@ -19,6 +19,7 @@
   --color-terra: var(--terra);
   --font-sans: "Inter", "Pretendard Variable", Pretendard, "Noto Sans KR", -apple-system, "Helvetica Neue", sans-serif;
   --font-serif: var(--font-sans);
+  --font-logo: "Jost", "Futura", "Century Gothic", var(--font-sans);
 }
 
 html { scroll-behavior: smooth; }

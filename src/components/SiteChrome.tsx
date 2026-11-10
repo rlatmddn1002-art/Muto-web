@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "./Logo";
 
 export const PAGES = [
   { href: "/about", en: "About", ko: "무토에 대하여" },
@@ -21,8 +22,7 @@ export function SiteHeader({ current, tall = false }: { current?: string; tall?:
     <header className="grid-frame grid-cols-2 md:grid-cols-4">
       <div className={`cell ${h}`}>
         <Link href="/" className="inline-block" aria-label="MUTO Associates — 처음으로">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/muto-logo.png" alt="戊土 MUTO ASSOCIATES — Architecture studio" className="w-[118px] md:w-[136px]" />
+          <Logo />
         </Link>
       </div>
       <nav className={`cell ${h}`}>
@@ -47,12 +47,12 @@ export function SiteHeader({ current, tall = false }: { current?: string; tall?:
 export function PageTitle({ no, en, ko }: { no: string; en: string; ko: string }) {
   return (
     <div className="grid-frame -mt-px grid-cols-1 md:grid-cols-4">
-      <div className="cell flex flex-col justify-end md:min-h-[220px]">
+      <div className="cell flex flex-col justify-end md:min-h-[180px]">
         <p className="label tabular-nums">{no}</p>
         <p className="sub mt-1">{ko}</p>
       </div>
-      <div className="cell flex items-end md:col-span-3 md:min-h-[220px]">
-        <h1 className="serif fade-in text-[44px] leading-none md:text-[72px]">{en}.</h1>
+      <div className="cell flex items-end md:col-span-3 md:min-h-[180px]">
+        <h1 className="serif fade-in text-[30px] leading-none md:text-[40px]">{en}.</h1>
       </div>
     </div>
   );

@@ -95,7 +95,7 @@ export function About() {
         {KEYWORDS.map(([en, kw, d]) => (
           <div key={en} className="cell flex flex-col gap-6 md:min-h-[260px]">
             <p className="sub">{en}</p>
-            <p className="serif text-[18px]">{kw}</p>
+            <p className="text-[15px] font-medium">{kw}</p>
             <p className="mt-auto text-[12px] leading-[1.8] text-ink/75">{d}</p>
           </div>
         ))}

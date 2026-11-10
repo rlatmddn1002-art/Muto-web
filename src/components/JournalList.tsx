@@ -46,12 +46,12 @@ export function JournalList({ posts }: { posts: BlogPost[] }) {
             </div>
             <div className="cell flex gap-5 md:col-span-2">
               {p.image && (
-                <div className="w-24 shrink-0 md:w-32">
-                  <BlogImage src={p.image} alt="" className="aspect-[4/3] w-full" />
+                <div className="w-14 shrink-0 md:w-[72px]">
+                  <BlogImage src={p.image} alt="" className="aspect-square w-full" />
                 </div>
               )}
               <div className="min-w-0">
-                <h3 className="serif text-[16px] leading-snug md:text-[18px]">{p.title}</h3>
+                <h3 className="text-[14px] font-medium leading-snug md:text-[15px]">{p.title}</h3>
                 {p.excerpt && <p className="sub mt-2 line-clamp-2 max-w-[520px] leading-5 md:line-clamp-3">{p.excerpt}</p>}
               </div>
             </div>

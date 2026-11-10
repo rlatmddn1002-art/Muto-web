@@ -12,7 +12,7 @@ function Header({ id, title, note }: { id: string; title: string; note?: string 
   return (
     <div id={id} className="grid-frame -mt-px scroll-mt-6 grid-cols-2 md:grid-cols-4">
       <div className="cell pt-10 md:pt-14">
-        <p className="text-[15px] font-medium"><span className="accent-bar" />{title}.</p>
+        <p className="text-[13px] font-medium"><span className="accent-bar" />{title}.</p>
       </div>
       <div className="cell pt-10 md:col-span-3 md:pt-14 text-right">
         {note && <p className="label">{note}</p>}
@@ -30,7 +30,7 @@ function Row({ a, i, posts }: { a: Activity; i: number; posts?: BlogPost[] }) {
         <p className="sub mt-1 hidden md:block">{a.where_label}</p>
       </div>
       <div className="cell md:col-span-2">
-        <h3 className="serif text-[17px] leading-snug md:text-[20px]">{a.title}</h3>
+        <h3 className="text-[15px] font-medium leading-snug md:text-[16px]">{a.title}</h3>
         {a.summary && <p className="sub mt-2 max-w-[460px] leading-5">{a.summary}</p>}
         <p className="sub mt-2 md:hidden">{a.where_label}</p>
         {posts && posts.length > 0 && (
@@ -68,7 +68,7 @@ function ImageRow({ a, i }: { a: Activity; i: number }) {
       <div className="cell flex flex-col justify-between gap-8">
         <div>
           <p className="label tabular-nums">{String(i + 1).padStart(2, "0")}</p>
-          <h3 className="serif mt-6 text-[20px] leading-snug">{a.title}</h3>
+          <h3 className="mt-6 text-[15px] font-medium leading-snug">{a.title}</h3>
           <p className="sub mt-1">{a.where_label}</p>
         </div>
         <div className="space-y-3">
@@ -80,7 +80,7 @@ function ImageRow({ a, i }: { a: Activity; i: number }) {
       </div>
       <div className="cell md:col-span-3">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={a.image_url!} alt={a.title} className="aspect-[16/10] w-full object-cover grayscale-[15%]" loading="lazy" />
+        <img src={a.image_url!} alt={a.title} className="ml-auto aspect-[4/3] w-full max-w-[360px] object-cover" loading="lazy" />
       </div>
     </div>
   );
@@ -119,7 +119,7 @@ function BlogWorkRow({ p, i }: { p: BlogPost; i: number }) {
           <p className="label tabular-nums">{String(i + 1).padStart(2, "0")}</p>
           <span className={`tag ${owner === "MUTO" ? "tag-on" : ""}`}>{owner}</span>
         </div>
-        <h3 className="serif mt-6 text-[18px] leading-snug md:text-[20px]">{title}</h3>
+        <h3 className="mt-6 text-[15px] font-medium leading-snug">{title}</h3>
         <p className="sub mt-1 tabular-nums">{fmtDate(p.date)}</p>
       </div>
       <div className="space-y-3">
@@ -134,7 +134,7 @@ function BlogWorkRow({ p, i }: { p: BlogPost; i: number }) {
     <div className="grid-frame -mt-px grid-cols-1 md:grid-cols-4">
       {info}
       <div className="cell md:col-span-3">
-        {p.image && <BlogImage src={p.image} alt={title} />}
+        {p.image && <div className="ml-auto max-w-[360px]"><BlogImage src={p.image} alt={title} className="aspect-[4/3] w-full" /></div>}
       </div>
     </div>
   );
@@ -230,7 +230,7 @@ export async function Channels() {
               const inner = (
                 <>
                   <p className="sub">{c.where_label}</p>
-                  <p className="serif mt-8 text-[17px]">{c.title}</p>
+                  <p className="mt-8 text-[14px] font-medium">{c.title}</p>
                 </>
               );
               return c.link ? (
