@@ -1,5 +1,5 @@
 -- MUTO Associates · Supabase 스키마
--- Supabase 대시보드 > SQL Editor 에 붙여넣고 Run
+-- Supabase 대시보드 > SQL Editor 에 붙여넣고 Run (여러 번 실행해도 안전해요)
 
 create table if not exists public.admins (
   email text primary key
@@ -60,8 +60,10 @@ create policy "admin all milestones" on public.milestones
   for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
 -- 다른 기기에서 고친 내용이 앱에 바로 반영되도록
-alter publication supabase_realtime add table public.activities;
-alter publication supabase_realtime add table public.milestones;
+do $$ begin
+  begin alter publication supabase_realtime add table public.activities; exception when duplicate_object then null; end;
+  begin alter publication supabase_realtime add table public.milestones; exception when duplicate_object then null; end;
+end $$;
 
 -- 대표 사진 저장소 (공개 읽기, 관리자만 업로드)
 insert into storage.buckets (id, name, public) values ('media', 'media', true) on conflict do nothing;
