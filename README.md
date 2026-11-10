@@ -14,7 +14,7 @@ Supabase를 연결하기 전에는 **미리보기 모드**로 돌아가요(초�
 1. https://supabase.com 에서 새 프로젝트 생성 (Region: Northeast Asia (Seoul))
 2. **SQL Editor** → `supabase/schema.sql` 붙여넣고 Run → 이어서 `supabase/seed.sql` Run
 3. **Authentication → Users → Add user** 로 내 이메일·비밀번호 계정 만들기
-   (`seed.sql`의 관리자 이메일과 같아야 해요. 다르면 seed.sql 4번째 줄을 고쳐서 실행)
+   (실행 전에 `seed.sql` 4번째 줄의 이메일을 이 계정 이메일로 바꿔 주세요)
 4. **Authentication → Sign In / Providers** 에서 *Allow new users to sign up* 끄기
    (다른 사람이 가입하지 못하게)
 5. **Project Settings → API** 에서 `Project URL`, `anon public` 키 복사

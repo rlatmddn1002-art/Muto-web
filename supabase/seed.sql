@@ -1,7 +1,7 @@
 -- MUTO Associates · 초기 데이터 (2026-11-09 기준)
 -- schema.sql 실행 후 Run. 관리자 이메일은 Supabase에서 만든 로그인 계정과 같아야 해요.
 
-insert into public.admins (email) values ('rlatmddn1002@nate.com') on conflict do nothing;
+insert into public.admins (email) values ('본인-로그인-이메일@example.com') on conflict do nothing;
 
 insert into public.activities (area,title,status,where_label,summary,progress_label,is_public,archived,sort) values
   ('채널','무토의 공간미학','진행','네이버 블로그','연재와 출판, 생각과 작업을 쌓아두는 서고(아카이브). 인테리어 카테고리 상위 1%.',null,true,false,1),
