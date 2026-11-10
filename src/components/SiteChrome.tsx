@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { InstallApp } from "./InstallApp";
 
 export const PAGES = [
   { href: "/about", en: "About", ko: "무토에 대하여" },
@@ -65,7 +66,8 @@ export function SiteFooter() {
       <div className="cell label md:col-span-2">
         <Link href="/" className="ulink">Index</Link>
       </div>
-      <div className="cell label text-right">
+      <div className="cell label flex justify-end gap-4">
+        <InstallApp />
         <Link href="/admin" className="ulink">Admin</Link>
       </div>
     </footer>

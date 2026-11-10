@@ -4,13 +4,19 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "MUTO Associates",
     short_name: "MUTO",
-    description: "MUTO Associates 활동 관리와 아카이브",
-    start_url: "/admin",
+    description: "MUTO Associates — Architecture studio",
+    start_url: "/",
+    id: "/",
     scope: "/",
     display: "standalone",
     background_color: "#efefef",
     theme_color: "#efefef",
     lang: "ko",
+    shortcuts: [
+      { name: "Journal", url: "/journal" },
+      { name: "Work", url: "/work" },
+      { name: "관리", url: "/admin" },
+    ],
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
