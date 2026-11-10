@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { BlogPost } from "@/lib/naver";
 import { SERIES_CATEGORIES, inCategories } from "@/lib/series";
+import { BlogImage } from "./BlogImage";
 
 const FILTERS: { label: string; cats: string[] | null }[] = [
   { label: "전체", cats: null },
@@ -43,9 +44,16 @@ export function JournalList({ posts }: { posts: BlogPost[] }) {
             <div className="cell">
               <p className="label tabular-nums">{fmt(p.date)}</p>
             </div>
-            <div className="cell md:col-span-2">
-              <h3 className="serif text-[16px] leading-snug md:text-[18px]">{p.title}</h3>
-              {p.excerpt && <p className="sub mt-2 max-w-[520px] leading-5">{p.excerpt}</p>}
+            <div className="cell flex gap-5 md:col-span-2">
+              {p.image && (
+                <div className="w-24 shrink-0 md:w-32">
+                  <BlogImage src={p.image} alt="" className="aspect-[4/3] w-full" />
+                </div>
+              )}
+              <div className="min-w-0">
+                <h3 className="serif text-[16px] leading-snug md:text-[18px]">{p.title}</h3>
+                {p.excerpt && <p className="sub mt-2 line-clamp-2 max-w-[520px] leading-5 md:line-clamp-3">{p.excerpt}</p>}
+              </div>
             </div>
             <div className="cell col-span-2 md:col-span-1 md:text-right">
               {p.category && <span className="sub">{p.category}</span>}
