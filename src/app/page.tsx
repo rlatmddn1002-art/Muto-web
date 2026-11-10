@@ -10,11 +10,10 @@ export default function Home() {
 
       <section className="grid-frame -mt-px grid-cols-1 md:grid-cols-4">
         <div className="cell flex flex-col justify-between gap-16 md:min-h-[460px]">
-          <p className="label">
-            戊土 — 큰 산
-            <br />
-            <span className="text-muted">Architecture studio</span>
-          </p>
+          <div>
+            <p className="text-[22px] font-light tracking-[.04em] md:text-[26px]">戊土</p>
+            <p className="font-logo mt-1 text-[12px] font-light text-muted md:text-[13px]">Architecture studio</p>
+          </div>
           <p className="text-[12px] leading-6 text-ink/80">
             무토(戊土)는 큰 산을 의미합니다.
             <br />
