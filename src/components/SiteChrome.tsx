@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Mountain } from "./Mountain";
 
 export const PAGES = [
   { href: "/about", en: "About", ko: "무토에 대하여" },
@@ -21,9 +20,9 @@ export function SiteHeader({ current, tall = false }: { current?: string; tall?:
   return (
     <header className="grid-frame grid-cols-2 md:grid-cols-4">
       <div className={`cell ${h}`}>
-        <Link href="/" className="inline-flex items-center gap-2 text-[14px] font-medium tracking-tight">
-          <Mountain className="w-3.5 text-ink" title="" />
-          MUTO
+        <Link href="/" className="inline-block" aria-label="MUTO Associates — 처음으로">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/muto-logo.png" alt="戊土 MUTO ASSOCIATES — Architecture studio" className="w-[118px] md:w-[136px]" />
         </Link>
       </div>
       <nav className={`cell ${h}`}>
