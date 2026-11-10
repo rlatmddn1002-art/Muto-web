@@ -54,6 +54,28 @@ export function parseNaverRss(xml: string): BlogPost[] {
   });
 }
 
+/** 글의 대표 이미지(og:image)를 모바일 글 페이지에서 찾아요. 하루 동안 기억해요. */
+async function getPostImage(link: string): Promise<string | null> {
+  "use cache";
+  cacheLife("days");
+  const m = link.match(/blog\.naver\.com\/([^/?#]+)\/(\d+)/);
+  if (!m) return null;
+  try {
+    const res = await fetch(`https://m.blog.naver.com/${m[1]}/${m[2]}`, {
+      headers: { "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148" },
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    const og =
+      html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)?.[1] ??
+      html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i)?.[1];
+    if (!og || /blog_profile|og_default|noimg/i.test(og)) return null;
+    return og.replace(/&amp;/g, "&");
+  } catch {
+    return null;
+  }
+}
+
 /** 네이버 블로그 RSS에서 최근 글을 가져와요. 몇 분마다 새로 읽어요. */
 export async function getBlogPosts(): Promise<BlogPost[]> {
   "use cache";
@@ -64,7 +86,11 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
       headers: { "User-Agent": "Mozilla/5.0 (compatible; MUTO-site/1.0)" },
     });
     if (!res.ok) throw new Error(`RSS ${res.status}`);
-    return parseNaverRss(await res.text());
+    const posts = parseNaverRss(await res.text());
+    // RSS에 사진이 없는 글은 글 페이지의 대표 이미지를 찾아 붙여요
+    return await Promise.all(
+      posts.map(async (p) => (p.image || !p.link ? p : { ...p, image: await getPostImage(p.link) }))
+    );
   } catch (e) {
     console.error("naver rss", e);
     return [];
