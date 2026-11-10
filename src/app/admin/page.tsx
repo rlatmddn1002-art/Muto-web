@@ -110,7 +110,7 @@ export default function AdminPage() {
 
   const flash = (t: string) => {
     setMsg(t);
-    setTimeout(() => setMsg(""), 2500);
+    setTimeout(() => setMsg(""), t.length > 30 ? 6000 : 2500);
   };
 
   async function saveActivity(a: Activity) {
@@ -121,8 +121,9 @@ export default function AdminPage() {
       flash("미리보기 모드: 화면에만 반영됐어요");
     } else {
       const { id, ...rest } = row;
-      const res = id ? await db.from("activities").update(rest).eq("id", id) : await db.from("activities").insert(rest);
+      const res = id ? await db.from("activities").update(rest).eq("id", id).select() : await db.from("activities").insert(rest).select();
       if (res.error) return flash(`저장 실패: ${res.error.message}`);
+      if (!res.data?.length) return flash("저장되지 않았어요 — 관리자 권한이 없어요. Supabase admins 표의 이메일을 확인해 주세요.");
       flash("저장했어요");
       await load();
     }
@@ -152,8 +153,9 @@ export default function AdminPage() {
       flash("미리보기 모드: 화면에만 반영됐어요");
     } else {
       const { id, ...rest } = row;
-      const res = id ? await db.from("milestones").update(rest).eq("id", id) : await db.from("milestones").insert(rest);
+      const res = id ? await db.from("milestones").update(rest).eq("id", id).select() : await db.from("milestones").insert(rest).select();
       if (res.error) return flash(`저장 실패: ${res.error.message}`);
+      if (!res.data?.length) return flash("저장되지 않았어요 — 관리자 권한이 없어요. Supabase admins 표의 이메일을 확인해 주세요.");
       flash("저장했어요");
       await load();
     }
@@ -192,6 +194,7 @@ export default function AdminPage() {
         </div>
         <div className="flex items-center gap-2 text-xs">
           <Link href="/" className="btn btn-ghost">홈페이지</Link>
+          {!preview && session?.user.email && <span className="hidden text-[11px] text-muted md:inline">{session.user.email}</span>}
           {!preview && (
             <button className="btn btn-ghost" onClick={() => db?.auth.signOut()}>
               로그아웃
