@@ -13,3 +13,16 @@ export function inCategories(category: string | null, cats: string[]) {
   const c = norm(category);
   return cats.some((x) => norm(x) === c);
 }
+
+/** 블로그 'works' 카테고리 → 홈페이지 Architecture · Projects */
+export const WORKS_CATEGORIES = ["works"];
+
+/** 제목에 [YKH]가 있으면 YKH 재직 중 작업, 아니면 MUTO 작업 */
+export function workOwner(title: string): "YKH" | "MUTO" {
+  return /\[\s*YKH\s*\]|\bYKH\b/i.test(title) ? "YKH" : "MUTO";
+}
+
+/** 홈페이지에 보일 제목: 앞뒤의 [YKH] 표시를 떼요 */
+export function workTitle(title: string) {
+  return title.replace(/\[\s*YKH\s*\]\s*/gi, "").trim();
+}

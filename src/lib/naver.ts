@@ -6,6 +6,7 @@ export type BlogPost = {
   category: string | null;
   excerpt: string;
   date: string; // ISO
+  image: string | null; // 글 첫 사진 (있으면)
 };
 
 export const BLOG_ID = process.env.NAVER_BLOG_ID || "nevereverdaily";
@@ -39,13 +40,16 @@ export function parseNaverRss(xml: string): BlogPost[] {
   return items.map((it) => {
     const link = tag(it, "link").replace(/\?fromRss=true.*$/, "");
     const d = new Date(tag(it, "pubDate"));
-    const excerpt = textOf(tag(it, "description"));
+    const desc = tag(it, "description");
+    const excerpt = textOf(desc);
+    const img = desc.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1]?.replace(/&amp;/g, "&") ?? null;
     return {
       title: textOf(tag(it, "title")),
       link,
       category: tag(it, "category") || null,
       excerpt: excerpt.length > 110 ? excerpt.slice(0, 110) + "…" : excerpt,
       date: isNaN(+d) ? "" : d.toISOString(),
+      image: img,
     };
   });
 }
@@ -71,8 +75,10 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 function demoPosts(): BlogPost[] {
   const d = (s: string) => new Date(s).toISOString();
   return [
-    { title: "예시 — 최신 글 제목이 여기에 표시돼요", link: "", category: "우리가 사는 공간의 비밀", excerpt: "글의 첫 문장이 짧게 이어져요.", date: d("2026-11-08") },
-    { title: "예시 — 연재 글은 카테고리와 함께 쌓여요", link: "", category: "공간미학(국내)", excerpt: "블로그에 글을 쓰면 몇 분 안에 홈페이지에도 기록돼요.", date: d("2026-11-03") },
-    { title: "예시 — 해외 공간도 함께 기록돼요", link: "", category: "공간미학(해외)", excerpt: "카테고리별로 걸러 볼 수도 있어요.", date: d("2026-10-27") },
+    { title: "예시 — 최신 글 제목이 여기에 표시돼요", link: "", category: "우리가 사는 공간의 비밀", excerpt: "글의 첫 문장이 짧게 이어져요.", date: d("2026-11-08"), image: null },
+    { title: "예시 — 연재 글은 카테고리와 함께 쌓여요", link: "", category: "공간미학(국내)", excerpt: "블로그에 글을 쓰면 몇 분 안에 홈페이지에도 기록돼요.", date: d("2026-11-03"), image: null },
+    { title: "예시 — 해외 공간도 함께 기록돼요", link: "", category: "공간미학(해외)", excerpt: "카테고리별로 걸러 볼 수도 있어요.", date: d("2026-10-27"), image: null },
+    { title: "[YKH] 예시 — 회사 작업은 YKH로 표시돼요", link: "", category: "works", excerpt: "제목에 [YKH]를 붙이면 자동으로 구분돼요.", date: d("2026-10-23"), image: null },
+    { title: "예시 — 개인 작업은 MUTO로 표시돼요", link: "", category: "works", excerpt: "그 외 works 글은 MUTO 작업으로 올라가요.", date: d("2026-10-20"), image: null },
   ];
 }

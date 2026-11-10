@@ -1,7 +1,8 @@
 import { getPublicActivities, getPublicMilestones } from "@/lib/data";
 import type { Activity } from "@/lib/types";
 import { getBlogPosts, type BlogPost } from "@/lib/naver";
-import { SERIES_CATEGORIES, inCategories } from "@/lib/series";
+import { SERIES_CATEGORIES, WORKS_CATEGORIES, inCategories, workOwner, workTitle } from "@/lib/series";
+import { BlogImage } from "./BlogImage";
 import Link from "next/link";
 
 const statusLabel = (s: Activity["status"]) =>
@@ -103,12 +104,58 @@ async function workData() {
   return { by };
 }
 
+function fmtDate(iso: string) {
+  return iso ? iso.slice(0, 10).replace(/-/g, ".") : "";
+}
+
+/** 블로그 works 글 한 줄 — 사진이 있으면 크게 */
+function BlogWorkRow({ p, i }: { p: BlogPost; i: number }) {
+  const owner = workOwner(p.title);
+  const title = workTitle(p.title);
+  const info = (
+    <div className="cell flex flex-col justify-between gap-8">
+      <div>
+        <div className="flex items-center justify-between">
+          <p className="label tabular-nums">{String(i + 1).padStart(2, "0")}</p>
+          <span className={`tag ${owner === "MUTO" ? "tag-on" : ""}`}>{owner}</span>
+        </div>
+        <h3 className="serif mt-6 text-[18px] leading-snug md:text-[20px]">{title}</h3>
+        <p className="sub mt-1 tabular-nums">{fmtDate(p.date)}</p>
+      </div>
+      <div className="space-y-3">
+        {p.excerpt && <p className="text-[12px] leading-[1.8] text-ink/75">{p.excerpt}</p>}
+        {p.link && (
+          <a href={p.link} target="_blank" rel="noreferrer" className="label ulink">블로그에서 보기 →</a>
+        )}
+      </div>
+    </div>
+  );
+  return (
+    <div className="grid-frame -mt-px grid-cols-1 md:grid-cols-4">
+      {info}
+      <div className="cell md:col-span-3">
+        {p.image && <BlogImage src={p.image} alt={title} />}
+      </div>
+    </div>
+  );
+}
+
 /** 건축 — 설계 · 연구 · 도구 */
 export async function ArchitectureSections() {
   const { by } = await workData();
+  const works = (await getBlogPosts()).filter((p) => inCategories(p.category, WORKS_CATEGORIES));
+  const muto = works.filter((p) => workOwner(p.title) === "MUTO").length;
   return (
     <>
-      <Block id="projects" title="Projects" note="설계 · 프로젝트" items={by("건축")} />
+      {works.length > 0 && (
+        <section>
+          <Header id="projects" title="Projects" note={`블로그 works에서 자동 기록 · MUTO ${muto} · YKH ${works.length - muto}`} />
+          {works.map((p, i) => (
+            <BlogWorkRow key={p.link || i} p={p} i={i} />
+          ))}
+        </section>
+      )}
+      <Block id="projects-more" title={works.length ? "More" : "Projects"} note="설계 · 프로젝트" items={by("건축")} />
       <Block id="research" title="Research" note="대학원 · 연구" items={by("대학원")} />
       <Block id="tools" title="Tools" note="도구 · 서비스" items={by("서비스")} />
       <Block id="vision" title="Vision" note="스테이 · 카페" items={by("비전")} />
@@ -138,8 +185,9 @@ export async function PublishingSections() {
 /** Work 첫 화면에 보여줄 개수 */
 export async function WorkCounts() {
   const { by } = await workData();
+  const works = (await getBlogPosts()).filter((p) => inCategories(p.category, WORKS_CATEGORIES)).length;
   return {
-    architecture: ["건축", "대학원", "서비스", "비전"].reduce((n, a) => n + by(a).length, 0),
+    architecture: works + ["건축", "대학원", "서비스", "비전"].reduce((n, a) => n + by(a).length, 0),
     publishing: by("콘텐츠").length + by("출판").length,
   };
 }
