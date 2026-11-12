@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import { LogoIntro } from "@/components/LogoIntro";
 import { PAGES, Shell, SiteFooter, SiteHeader } from "@/components/SiteChrome";
 
 export default function Home() {
@@ -21,7 +21,7 @@ export default function Home() {
           </p>
         </div>
         <div className="cell flex min-h-[320px] items-center justify-center md:col-span-3">
-          <Logo variant="stacked" className="fade-in" />
+          <LogoIntro />
         </div>
       </section>
 
