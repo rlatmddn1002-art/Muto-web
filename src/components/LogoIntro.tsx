@@ -23,7 +23,7 @@ const HEAD_TOP = -66;
 type Pt = [number, number];
 type Variant = "roll" | "grow" | "person";
 /** 기본 장면: roll(굴러와 안착) · grow(땅에서 솟아오름) · person(사람이 이고 와서 내려놓음) */
-const DEFAULT_VARIANT: Variant = "roll";
+const DEFAULT_VARIANT: Variant = "grow";
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const prog = (t: number, [a, b]: number[]) => clamp((t - a) / (b - a));
 const easeOut = (p: number) => 1 - Math.pow(1 - p, 3);
