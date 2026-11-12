@@ -3,195 +3,229 @@
 import { useEffect, useRef } from "react";
 
 /**
- * 메인 로고 등장 장면
- * 작은 사람이 큰 산(삼각형)을 머리 위로 받치고 걸어와, 몸을 숙여 글자 위에 내려놓고,
- * 돌아서서 걸어 나가요. 한 번만 재생. '동작 줄이기' 설정이면 완성된 로고만 보여요.
+ * 메인 로고 등장 장면 — 두 가지 버전
+ *  ALT1: 길쭉한 사람이 큰 산(삼각형)을 머리에 이고 와서 내려놓고, 몸을 기울인 채 성큼 물러나 사라짐
+ *  ALT2: 사람이 삽으로 울퉁불퉁한 흙더미를 다듬어 삼각형을 만들고, 흐려지며 사라짐
+ * 미리보기: /?logo=alt1 · /?logo=alt2 · 특정 순간 정지 &logo-t=초
+ * '동작 줄이기' 설정이면 완성된 로고만 보여요.
  */
 
-// ── 장면 좌표 (svg 단위) ─────────────────────────────
+export const LOGO_VARIANT: "alt1" | "alt2" = "alt1";
+
 const GROUND = 108.4; // 발 높이
-const TRI_FINAL = { x: 16, y: 111.7 }; // 삼각형 밑변 가운데 (최종)
-const STOP_X = 50; // 사람이 멈추는 곳
-const START_X = 330;
-const EXIT_X = 400;
-const HIP_Y = -23.4;
-const LEG = 23.4;
-const SHOULDER_Y = -46;
-const HEAD_TOP = -58.8;
+const BASE = 111.7; // 삼각형 밑변
+const TRI = { x: 16, w: 32, h: 27.7 }; // 최종 삼각형 (밑변 가운데 x)
 
-// ── 시간표 (초) ─────────────────────────────────────
-const T = {
-  walkIn: [0, 2.9],
-  lean: [3.15, 3.55],
-  toss: [3.35, 4.05],
-  settle: [4.05, 4.3],
-  stand: [4.25, 4.6],
-  turn: [4.75, 5.0],
-  walkOut: [5.05, 7.0],
-  end: 7.0,
-};
+// 사람 (발 사이가 원점, 왼쪽을 향함) — 길고 가는 몸, 작은 머리, 짧은 다리
+const LEG = 10;
+const HIP_Y = -LEG;
+const SHOULDER_Y = -55;
+const HEAD_CY = -62.6;
+const HEAD_TOP = -66;
 
+type Pt = [number, number];
 const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const prog = (t: number, [a, b]: number[]) => clamp((t - a) / (b - a));
 const easeOut = (p: number) => 1 - Math.pow(1 - p, 3);
 const easeIn = (p: number) => p * p * p;
 const easeInOut = (p: number) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
 const lerp = (a: number, b: number, p: number) => a + (b - a) * p;
-
-type Pt = [number, number];
 const pts = (...p: Pt[]) => p.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
 
-/** 어깨에서 손까지 — 팔꿈치는 바깥으로 살짝 꺾여요 */
-function arm(sh: Pt, hand: Pt, out: number): string {
-  const max = 19;
-  let [dx, dy] = [hand[0] - sh[0], hand[1] - sh[1]];
+/** 어깨 → 팔꿈치 → 손. 손이 멀면 팔 길이만큼만 뻗어요 */
+function arm(sh: Pt, hand: Pt, out: number, max = 22): string {
+  let dx = hand[0] - sh[0];
+  let dy = hand[1] - sh[1];
   const d = Math.hypot(dx, dy) || 1;
   if (d > max) {
     dx = (dx / d) * max;
     dy = (dy / d) * max;
   }
-  const h: Pt = [sh[0] + dx, sh[1] + dy];
-  const bend = Math.max(0, (max - Math.min(d, max)) / max) * 5 + 1;
-  const mx = (sh[0] + h[0]) / 2 + (-dy / Math.hypot(dx, dy)) * bend * out;
-  const my = (sh[1] + h[1]) / 2 + (dx / Math.hypot(dx, dy)) * bend * out;
-  return pts(sh, [mx, my], h);
+  const len = Math.hypot(dx, dy) || 1;
+  const bend = (1 - Math.min(d, max) / max) * 9 + 1;
+  const m: Pt = [sh[0] + dx / 2 + (-dy / len) * bend * out, sh[1] + dy / 2 + (dx / len) * bend * out];
+  return pts(sh, m, [sh[0] + dx, sh[1] + dy]);
 }
+
+function legPts(hx: number, ang: number, lift: number): string {
+  const hip: Pt = [hx, HIP_Y - lift];
+  const foot: Pt = [hip[0] + Math.sin(ang) * LEG, Math.min(0, hip[1] + Math.cos(ang) * LEG)];
+  return pts(hip, foot, [foot[0] - 2.6, foot[1]]);
+}
+
+/** ALT2 흙더미: 울퉁불퉁한 산 → 깔끔한 삼각형 */
+const MOUND_N = 28;
+const ROUGH = Array.from({ length: MOUND_N + 1 }, (_, i) => {
+  const u = i / MOUND_N;
+  const x = lerp(-5, TRI.w + 5, u);
+  const peak = Math.max(0, 1 - Math.abs(u - 0.46) / 0.5);
+  const lumps = Math.sin(u * 23) * 1.6 + Math.sin(u * 9 + 1) * 2.2;
+  return [x, -(peak * TRI.h * 0.82 + lumps * peak)] as Pt;
+});
+const CLEAN = ROUGH.map((_, i) => {
+  const u = i / MOUND_N;
+  return [lerp(0, TRI.w, u), -(TRI.h * (1 - Math.abs(u - 0.5) * 2))] as Pt;
+});
+const DOTS = Array.from({ length: 22 }, (_, i) => {
+  const u = ((i * 37) % 100) / 100;
+  const v = ((i * 61) % 100) / 100;
+  const x = lerp(2, TRI.w - 2, u);
+  const top = TRI.h * 0.8 * (1 - Math.abs(u - 0.46) * 2);
+  return [x, -top * v * 0.85 - 1] as Pt;
+});
 
 export function LogoIntro() {
   const fig = useRef<SVGGElement>(null);
-  const body = useRef<SVGGElement>(null);
+  const lean = useRef<SVGGElement>(null);
   const legL = useRef<SVGPolylineElement>(null);
   const legR = useRef<SVGPolylineElement>(null);
   const armL = useRef<SVGPolylineElement>(null);
   const armR = useRef<SVGPolylineElement>(null);
+  const shovel = useRef<SVGGElement>(null);
   const tri = useRef<SVGPolygonElement>(null);
+  const mound = useRef<SVGPolygonElement>(null);
+  const dots = useRef<SVGGElement>(null);
   const word = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const q = new URLSearchParams(location.search);
+    const variant = (q.get("logo") as "alt1" | "alt2") || LOGO_VARIANT;
+    const freeze = q.get("logo-t");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const ready = () => {
       tri.current?.setAttribute("data-ready", "");
       word.current?.setAttribute("data-ready", "");
     };
-    if (reduce) {
+    if (reduce && freeze === null) {
       ready();
       return;
     }
 
-    const freeze = new URLSearchParams(location.search).get("logo-t");
+    const setWord = (p: number) => {
+      if (word.current) word.current.style.opacity = String(lerp(0.25, 1, easeOut(p)));
+    };
+    const place = (g: SVGGElement | null, x: number, op: number) => {
+      g?.setAttribute("transform", `translate(${x.toFixed(2)} ${GROUND})`);
+      g?.setAttribute("opacity", op.toFixed(3));
+    };
+
+    // ── ALT1 ───────────────────────────────────────
+    const A1 = { walkIn: [0, 3.2], toss: [3.45, 4.15], settle: [4.15, 4.4], back: [4.55, 5.0], exit: [5.0, 7.0], end: 7.0 };
+    const STOP = 48;
     let phase = 0;
-    let lastX = START_X;
+    let lastX = 340;
     let lastT = 0;
-    let raf = 0;
-    const t0 = performance.now() + 350;
 
-    const frame = (now: number) => {
-      const t = Math.max(0, (now - t0) / 1000);
+    const alt1 = (t: number) => {
       const dt = Math.max(1e-3, t - lastT);
-
-      // 위치
-      let x: number;
-      if (t < T.walkOut[0]) x = lerp(START_X, STOP_X, easeOut(prog(t, T.walkIn)));
-      else x = lerp(STOP_X, EXIT_X, easeIn(prog(t, T.walkOut)));
-      const v = Math.abs(x - lastX) / dt; // 초당 이동
-      const speed = clamp(v / 140);
-      phase += Math.abs(x - lastX) / 7.5;
+      const x = t < A1.exit[0] ? lerp(340, STOP, easeOut(prog(t, A1.walkIn))) : lerp(STOP, 420, easeIn(prog(t, A1.exit)));
+      const v = Math.abs(x - lastX) / dt;
+      const speed = clamp(v / 120);
+      phase += Math.abs(x - lastX) / 3.2;
       lastX = x;
       lastT = t;
 
-      // 방향: 처음엔 왼쪽을 보고, 돌아설 때 오른쪽으로
-      const turnP = easeInOut(prog(t, T.turn));
-      const facing = lerp(1, -1, turnP); // 1 = 왼쪽
+      const bob = Math.abs(Math.cos(phase)) * 1.1 * speed;
+      // 내려놓은 뒤 몸을 삼각형 쪽(왼쪽)으로 기울인 채 오른쪽으로 물러남
+      const tilt = -20 * easeInOut(prog(t, A1.back));
+      const a = Math.sin(phase) * 34 * speed * (Math.PI / 180) * (t > A1.exit[0] ? 1.4 : 1);
+      legL.current?.setAttribute("points", legPts(-1.3, a, bob * 0.3));
+      legR.current?.setAttribute("points", legPts(1.3, -a, bob * 0.3));
+      lean.current?.setAttribute("transform", `translate(0 ${(-bob).toFixed(2)}) rotate(${tilt.toFixed(2)} 0 ${HIP_Y})`);
 
-      // 몸: 걸을 때 살짝 오르내림, 내려놓을 때 숙임
-      const bob = -Math.abs(Math.cos(phase)) * 1.3 * speed;
-      const leanP = prog(t, T.lean) - prog(t, T.stand);
-      const lean = -11 * easeInOut(clamp(leanP)); // 앞으로(왼쪽) 숙이기
-      const squat = 2.2 * easeInOut(clamp(leanP));
-
-      // 다리
-      const a = Math.sin(phase) * 26 * speed * (Math.PI / 180);
-      const leg = (hx: number, ang: number): string => {
-        const hip: Pt = [hx, HIP_Y + bob + squat];
-        const foot: Pt = [hip[0] + Math.sin(ang) * LEG, Math.min(0, hip[1] + Math.cos(ang) * LEG)];
-        return pts(hip, foot, [foot[0] - 3.7, foot[1]]);
-      };
-      legL.current?.setAttribute("points", leg(-2.2, a));
-      legR.current?.setAttribute("points", leg(2.2, -a));
-      body.current?.setAttribute("transform", `translate(0 ${(bob + squat).toFixed(2)}) rotate(${lean.toFixed(2)} 0 ${HIP_Y})`);
-      // 숙일 때 어깨도 함께 기울어요 (엉덩이 기준 회전)
-      const tilt = (p: Pt): Pt => {
-        const r = (lean * Math.PI) / 180;
-        const [px, py] = [p[0], p[1] - HIP_Y];
-        return [px * Math.cos(r) - py * Math.sin(r), HIP_Y + px * Math.sin(r) + py * Math.cos(r)];
-      };
-
-      // 삼각형 (밑변 가운데 기준)
-      const carried: Pt = [x, GROUND + HEAD_TOP + bob];
-      let tx = carried[0];
-      let ty = carried[1];
+      // 삼각형
+      let tx = x;
+      let ty = GROUND + HEAD_TOP - bob;
       let rot = 0;
-      const tossP = prog(t, T.toss);
-      if (t >= T.toss[0]) {
-        const p = easeInOut(tossP);
-        tx = lerp(STOP_X, TRI_FINAL.x, p);
-        ty = lerp(GROUND + HEAD_TOP, TRI_FINAL.y, p) - Math.sin(p * Math.PI) * 9; // 작은 호
-        rot = -14 * Math.sin(p * Math.PI);
-        if (t >= T.settle[0]) {
-          const s = prog(t, T.settle);
-          tx = TRI_FINAL.x;
-          ty = TRI_FINAL.y - Math.sin(s * Math.PI) * 1.6; // 톡
+      if (t >= A1.toss[0]) {
+        const p = easeInOut(prog(t, A1.toss));
+        tx = lerp(STOP, TRI.x, p);
+        ty = lerp(GROUND + HEAD_TOP, BASE, p) - Math.sin(p * Math.PI) * 8;
+        rot = -12 * Math.sin(p * Math.PI);
+        if (t >= A1.settle[0]) {
+          tx = TRI.x;
+          ty = BASE - Math.sin(prog(t, A1.settle) * Math.PI) * 1.4;
           rot = 0;
         }
       }
       tri.current?.setAttribute("transform", `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) rotate(${rot.toFixed(2)} 0 -9)`);
 
-      // 팔
-      const shL0 = tilt([-2.5, SHOULDER_Y]);
-      const shR0 = tilt([2.5, SHOULDER_Y]);
-      const shL: Pt = [shL0[0], shL0[1] + bob + squat];
-      const shR: Pt = [shR0[0], shR0[1] + bob + squat];
-      if (t < T.toss[0] + 0.15) {
-        // 머리 위로 받치기 / 밀어 내려놓기
-        const local = (gx: number, gy: number): Pt => [(gx - x) * facing, gy - GROUND];
-        const left = local(tx - 13, ty - 1.5);
-        const right = local(tx + 13, ty - 1.5);
-        armL.current?.setAttribute("points", arm(shL, left, -1));
-        armR.current?.setAttribute("points", arm(shR, right, 1));
+      // 팔: 머리 위 삼각형 받치기 → 밀어 내려놓기 → 늘어뜨리고 걸음에 맞춰 흔들기
+      const shL: Pt = [-1.8, SHOULDER_Y - bob];
+      const shR: Pt = [1.8, SHOULDER_Y - bob];
+      const local = (gx: number, gy: number): Pt => [gx - x, gy - GROUND];
+      if (t < A1.toss[0] + 0.2) {
+        armL.current?.setAttribute("points", arm(shL, local(tx - 12, ty - 1), -1));
+        armR.current?.setAttribute("points", arm(shR, local(tx + 12, ty - 1), 1));
       } else {
-        // 내려놓은 뒤: 팔을 내리고, 걸을 땐 다리와 반대로 흔들기
-        const relax = easeOut(prog(t, [T.toss[0] + 0.15, T.stand[1]]));
-        const sw = -a * 0.75;
-        const hand = (sh: Pt, ang: number, spread: number): Pt => [
-          sh[0] + Math.sin(ang) * 17 + spread,
-          sh[1] + Math.cos(ang) * 17,
-        ];
-        const reachL: Pt = [-10, -40];
-        const reachR: Pt = [-6, -38];
-        const dl = hand(shL, sw, -1.5);
-        const dr = hand(shR, -sw, 1.5);
-        armL.current?.setAttribute("points", arm(shL, [lerp(reachL[0], dl[0], relax), lerp(reachL[1], dl[1], relax)], -1));
-        armR.current?.setAttribute("points", arm(shR, [lerp(reachR[0], dr[0], relax), lerp(reachR[1], dr[1], relax)], 1));
+        const r = easeOut(prog(t, [A1.toss[0] + 0.2, A1.back[1]]));
+        const sw = -a * 0.8;
+        armL.current?.setAttribute("points", arm(shL, [lerp(-12, -9 + Math.sin(sw) * 6, r), lerp(-44, SHOULDER_Y + 20, r)], -1));
+        armR.current?.setAttribute("points", arm(shR, [lerp(-8, 6 + Math.sin(-sw) * 6, r), lerp(-42, SHOULDER_Y + 19, r)], 1));
       }
 
-      // 사람 전체 위치, 방향, 사라짐
-      const fade = 1 - prog(t, [T.end - 0.45, T.end]);
-      fig.current?.setAttribute("transform", `translate(${x.toFixed(2)} ${GROUND}) scale(${facing.toFixed(3)} 1)`);
-      fig.current?.setAttribute("opacity", fade.toFixed(3));
-
-      // 글자: 삼각형이 자리 잡을 때 또렷해짐
-      if (word.current) word.current.style.opacity = String(lerp(0.25, 1, easeOut(prog(t, [T.settle[0] - 0.2, T.settle[0] + 1.2]))));
-
-      if (t < T.end && freeze === null) raf = requestAnimationFrame(frame);
+      place(fig.current, x, 1 - prog(t, [A1.end - 0.5, A1.end]));
+      setWord(prog(t, [A1.settle[0] - 0.2, A1.settle[0] + 1.2]));
+      return t < A1.end;
     };
 
+    // ── ALT2 ───────────────────────────────────────
+    const A2 = { appear: [0, 0.8], dig: [0.9, 3.9], clean: [3.9, 4.4], fade: [4.6, 5.8], end: 5.8 };
+    const FX = 46; // 사람 위치
+    const alt2 = (t: number) => {
+      const strokes = 5;
+      const k = prog(t, A2.dig) * strokes;
+      const stroke = Math.sin((k % 1) * Math.PI); // 삽질 한 번: 0→1→0
+      // 다듬어지는 정도: 삽질마다 조금씩, 마지막에 깔끔하게
+      const shape =
+        clamp(Math.floor(k) / strokes + easeOut(k % 1) / strokes) * 0.85 + easeInOut(prog(t, A2.clean)) * 0.15;
+      const mp = ROUGH.map((r, i) => [lerp(r[0], CLEAN[i][0], shape), lerp(r[1], CLEAN[i][1], shape)] as Pt);
+      const appear = easeOut(prog(t, A2.appear));
+      const done = prog(t, [A2.clean[1] - 0.05, A2.clean[1]]);
+      mound.current?.setAttribute("points", pts([mp[0][0], 0], ...mp, [mp[mp.length - 1][0], 0]));
+      mound.current?.setAttribute("transform", `translate(0 ${BASE})`);
+      mound.current?.setAttribute("opacity", String(appear * (1 - done)));
+      dots.current?.setAttribute("opacity", String(appear * (1 - shape)));
+      tri.current?.setAttribute("transform", `translate(${TRI.x} ${BASE})`);
+      tri.current?.setAttribute("opacity", String(done));
+
+      // 사람: 삽을 들고 흙더미 쪽으로 숙였다 폈다
+      const bend = -10 - stroke * 12;
+      lean.current?.setAttribute("transform", `rotate(${bend.toFixed(2)} 0 ${HIP_Y})`);
+      legL.current?.setAttribute("points", legPts(-1.3, 0.12, 0));
+      legR.current?.setAttribute("points", legPts(1.3, -0.18, 0));
+      const shL: Pt = [-1.8, SHOULDER_Y];
+      const shR: Pt = [1.8, SHOULDER_Y];
+      const grip1: Pt = [-9 - stroke * 3, -42 + stroke * 6];
+      const grip2: Pt = [-5 - stroke * 3, -34 + stroke * 6];
+      armL.current?.setAttribute("points", arm(shL, grip1, -1));
+      armR.current?.setAttribute("points", arm(shR, grip2, 1));
+      shovel.current?.setAttribute(
+        "transform",
+        `translate(${grip1[0].toFixed(2)} ${grip1[1].toFixed(2)}) rotate(${(28 + stroke * 18).toFixed(2)})`
+      );
+      shovel.current?.setAttribute("opacity", "1");
+      place(fig.current, FX, appear * (1 - easeInOut(prog(t, A2.fade))));
+      setWord(prog(t, [A2.clean[0], A2.clean[1] + 1]));
+      return t < A2.end;
+    };
+
+    const scene = variant === "alt2" ? alt2 : alt1;
+    if (variant === "alt2") tri.current?.setAttribute("opacity", "0");
     ready();
+
     if (freeze !== null) {
-      // 미리보기용: ?logo-t=초 — 그 순간까지 빠르게 계산해 멈춰요
-      const end = t0 + parseFloat(freeze) * 1000;
-      for (let n = t0; n <= end; n += 16) frame(n);
+      const end = parseFloat(freeze);
+      for (let t = 0; t <= end; t += 1 / 60) scene(t);
+      scene(end);
       return;
     }
+    const t0 = performance.now() + 350;
+    let raf = 0;
+    const frame = (now: number) => {
+      const t = Math.max(0, (now - t0) / 1000);
+      if (scene(t)) raf = requestAnimationFrame(frame);
+    };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
   }, []);
@@ -206,25 +240,41 @@ export function LogoIntro() {
         @keyframes mi-show{to{opacity:1}}
       `}</style>
       <svg viewBox="0 0 360 112" className="w-[300px] overflow-visible md:w-[360px]" aria-hidden="true">
-        {/* 작은 사람 — 발 사이가 원점, 왼쪽을 향함 */}
+        {/* ALT2 흙더미 */}
+        <polygon ref={mound} points="0,0" fill="#111" opacity="0" />
+        <g ref={dots} opacity="0" fill="#fff" transform={`translate(0 ${BASE})`}>
+          {DOTS.map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r={0.7 + (i % 3) * 0.25} />
+          ))}
+        </g>
+
+        {/* 사람 */}
         <g ref={fig} opacity="0">
-          <g ref={body}>
-            <ellipse cx="0.3" cy="-54.2" rx="3.3" ry="4.3" fill="#111" />
-            <polygon points="-2.9,-48.4 2.9,-48.4 6.5,-23.4 -6.5,-23.4" fill="#111" />
+          <g ref={lean}>
+            <ellipse cx="0.2" cy={HEAD_CY} rx="2.6" ry="3.4" fill="#111" />
+            <polygon points={`-2,${SHOULDER_Y - 3} 2,${SHOULDER_Y - 3} 2.7,${HIP_Y} -2.7,${HIP_Y}`} fill="#111" />
+            <g fill="none" stroke="#111" strokeWidth="1.3" strokeLinecap="square" strokeLinejoin="miter">
+              <polyline ref={armL} points={`-1.8,${SHOULDER_Y} -3,${SHOULDER_Y + 10} -3,${SHOULDER_Y + 20}`} />
+              <polyline ref={armR} points={`1.8,${SHOULDER_Y} 3,${SHOULDER_Y + 10} 3,${SHOULDER_Y + 20}`} />
+              {/* ALT2 삽: 자루 + 날 */}
+              <g ref={shovel} opacity="0">
+                <line x1="0" y1="0" x2="0" y2="34" />
+                <polygon points="-2.6,34 2.6,34 1.8,40 -1.8,40" fill="#111" stroke="none" />
+              </g>
+            </g>
           </g>
-          <g fill="none" stroke="#111" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter">
-            <polyline ref={legL} points="-2.2,-23.4 -2.2,0 -5.9,0" />
-            <polyline ref={legR} points="2.2,-23.4 2.2,0 -1.5,0" />
-            <polyline ref={armL} points="-2.5,-46 -4,-38 -4,-30" />
-            <polyline ref={armR} points="2.5,-46 4,-38 4,-30" />
+          <g fill="none" stroke="#111" strokeWidth="1.3" strokeLinecap="square" strokeLinejoin="miter">
+            <polyline ref={legL} points={`-1.3,${HIP_Y} -1.3,0 -3.9,0`} />
+            <polyline ref={legR} points={`1.3,${HIP_Y} 1.3,0 -1.3,0`} />
           </g>
         </g>
-        {/* 큰 산 — 밑변 가운데가 원점, 최종 위치에 서 있음 */}
+
+        {/* 큰 산 */}
         <polygon
           ref={tri}
           className="mi-tri"
-          points="0,-27.7 16,0 -16,0"
-          transform={`translate(${TRI_FINAL.x} ${TRI_FINAL.y})`}
+          points={`0,${-TRI.h} ${TRI.w / 2},0 ${-TRI.w / 2},0`}
+          transform={`translate(${TRI.x} ${BASE})`}
           fill="#111"
         />
       </svg>
