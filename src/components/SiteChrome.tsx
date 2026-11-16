@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 import { InstallApp } from "./InstallApp";
+import { SocialLinks } from "./SocialLinks";
 
 export const PAGES = [
   { href: "/about", en: "About", ko: "무토에 대하여" },
@@ -36,10 +37,12 @@ export function SiteHeader({ current, tall = false }: { current?: string; tall?:
             </li>
           ))}
         </ul>
+        <SocialLinks className="mt-5 md:hidden" />
       </nav>
       <div className={`cell hidden md:block ${h}`} />
-      <div className={`cell hidden text-right md:block ${h}`}>
+      <div className={`cell hidden md:flex md:flex-col md:items-end md:justify-between ${h}`}>
         <span className="sub">Seoul, Korea</span>
+        <SocialLinks />
       </div>
     </header>
   );
@@ -63,8 +66,9 @@ export function SiteFooter() {
   return (
     <footer className="grid-frame -mt-px grid-cols-3 md:grid-cols-4">
       <div className="cell label">© MUTO Associates</div>
-      <div className="cell label md:col-span-2">
+      <div className="cell label flex items-center justify-between gap-4 md:col-span-2">
         <Link href="/" className="ulink">Index</Link>
+        <SocialLinks />
       </div>
       <div className="cell label flex justify-end gap-4">
         <InstallApp />
