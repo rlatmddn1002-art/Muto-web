@@ -23,6 +23,9 @@ export function inCategories(category: string | null, cats: string[]) {
 /** 블로그 'works' 카테고리 → 홈페이지 Architecture · Projects */
 export const WORKS_CATEGORIES = ["works"];
 
+/** 블로그 'research' 카테고리 → 홈페이지 Research (대학원 연구기록) */
+export const RESEARCH_CATEGORIES = ["research", "연구", "연구기록"];
+
 /** 제목에 [YKH]가 있으면 YKH 재직 중 작업, 아니면 MUTO 작업 */
 export function workOwner(title: string): "YKH" | "MUTO" {
   return /\[\s*YKH\s*\]|\bYKH\b/i.test(title) ? "YKH" : "MUTO";

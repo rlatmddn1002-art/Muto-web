@@ -5,7 +5,7 @@ import { InstallApp } from "./InstallApp";
 export const PAGES = [
   { href: "/about", en: "About", ko: "무토에 대하여" },
   { href: "/journal", en: "Journal", ko: "기록" },
-  { href: "/work", en: "Work", ko: "건축 · 출판" },
+  { href: "/work", en: "Work", ko: "건축 · 출판 · 연구" },
   { href: "/contact", en: "Contact", ko: "채널 · 연락" },
 ];
 

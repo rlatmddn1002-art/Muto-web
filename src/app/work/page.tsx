@@ -7,11 +7,12 @@ import { PageTitle, Shell, SiteFooter, SiteHeader } from "@/components/SiteChrom
 export const metadata: Metadata = { title: "Work" };
 
 const PARTS = [
-  { href: "/work/architecture", key: "architecture", en: "Architecture", ko: "건축", note: "설계 · 연구 · 도구 · 비전" },
+  { href: "/work/architecture", key: "architecture", en: "Architecture", ko: "건축", note: "설계 · 도구 · 비전" },
   { href: "/work/publishing", key: "publishing", en: "Publishing", ko: "출판", note: "연재 · 전자책" },
+  { href: "/work/research", key: "research", en: "Research", ko: "연구", note: "대학원 · 연구기록" },
 ] as const;
 
-async function Count({ k }: { k: "architecture" | "publishing" }) {
+async function Count({ k }: { k: "architecture" | "publishing" | "research" }) {
   const c = await WorkCounts();
   return <>{c[k]}</>;
 }
@@ -20,8 +21,8 @@ export default function WorkPage() {
   return (
     <Shell>
       <SiteHeader current="/work" />
-      <PageTitle no="03" en="Work" ko="건축 · 출판" />
-      <nav className="grid-frame -mt-px grid-cols-1 md:grid-cols-2">
+      <PageTitle no="03" en="Work" ko="건축 · 출판 · 연구" />
+      <nav className="grid-frame -mt-px grid-cols-1 md:grid-cols-3">
         {PARTS.map((p, i) => (
           <Link key={p.href} href={p.href} className="cell group flex min-h-[200px] flex-col justify-between transition-colors hover:bg-[#f6f6f6] md:min-h-[280px]">
             <span className="flex justify-between">

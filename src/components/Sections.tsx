@@ -1,7 +1,7 @@
 import { getPublicActivities, getPublicMilestones } from "@/lib/data";
 import type { Activity } from "@/lib/types";
 import { getBlogPosts, type BlogPost } from "@/lib/naver";
-import { SERIES_CATEGORIES, SERIES_LOGOS, WORKS_CATEGORIES, inCategories, workOwner, workTitle } from "@/lib/series";
+import { SERIES_CATEGORIES, SERIES_LOGOS, WORKS_CATEGORIES, RESEARCH_CATEGORIES, inCategories, workOwner, workTitle } from "@/lib/series";
 import { BlogImage } from "./BlogImage";
 import Link from "next/link";
 
@@ -115,7 +115,7 @@ function fmtDate(iso: string) {
 }
 
 /** 블로그 works 글 한 줄 — 사진이 있으면 크게 */
-function BlogWorkRow({ p, i }: { p: BlogPost; i: number }) {
+function BlogWorkRow({ p, i, tag = true }: { p: BlogPost; i: number; tag?: boolean }) {
   const owner = workOwner(p.title);
   const title = workTitle(p.title);
   const info = (
@@ -123,7 +123,7 @@ function BlogWorkRow({ p, i }: { p: BlogPost; i: number }) {
       <div>
         <div className="flex items-center justify-between">
           <p className="label tabular-nums">{String(i + 1).padStart(2, "0")}</p>
-          <span className={`tag ${owner === "MUTO" ? "tag-on" : ""}`}>{owner}</span>
+          {tag && <span className={`tag ${owner === "MUTO" ? "tag-on" : ""}`}>{owner}</span>}
         </div>
         <h3 className="mt-6 text-[15px] font-medium leading-snug">{title}</h3>
         <p className="sub mt-1 tabular-nums">{fmtDate(p.date)}</p>
@@ -146,7 +146,7 @@ function BlogWorkRow({ p, i }: { p: BlogPost; i: number }) {
   );
 }
 
-/** 건축 — 설계 · 연구 · 도구 */
+/** 건축 — 설계 · 도구 · 비전 */
 export async function ArchitectureSections() {
   const { by } = await workData();
   const works = (await getBlogPosts()).filter((p) => inCategories(p.category, WORKS_CATEGORIES));
@@ -162,9 +162,35 @@ export async function ArchitectureSections() {
         </section>
       )}
       <Block id="projects-more" title={works.length ? "More" : "Projects"} note="설계 · 프로젝트" items={by("건축")} />
-      <Block id="research" title="Research" note="대학원 · 연구" items={by("대학원")} />
       <Block id="tools" title="Tools" note="도구 · 서비스" items={by("서비스")} />
       <Block id="vision" title="Vision" note="스테이 · 카페" items={by("비전")} />
+    </>
+  );
+}
+
+/** 연구 — 대학원 연구기록 */
+export async function ResearchSections() {
+  const { by } = await workData();
+  const notes = (await getBlogPosts()).filter((p) => inCategories(p.category, RESEARCH_CATEGORIES));
+  const items = by("대학원");
+  if (!notes.length && !items.length) {
+    return (
+      <div className="grid-frame -mt-px grid-cols-1">
+        <div className="cell py-16"><p className="sub">아직 기록이 없어요.</p></div>
+      </div>
+    );
+  }
+  return (
+    <>
+      {notes.length > 0 && (
+        <section>
+          <Header id="notes" title="Notes" note="블로그 research에서 자동 기록" />
+          {notes.map((p, i) => (
+            <BlogWorkRow key={p.link || i} p={p} i={i} tag={false} />
+          ))}
+        </section>
+      )}
+      <Block id="studies" title="Studies" note="대학원 · 논문 · 설계" items={items} />
     </>
   );
 }
@@ -191,10 +217,13 @@ export async function PublishingSections() {
 /** Work 첫 화면에 보여줄 개수 */
 export async function WorkCounts() {
   const { by } = await workData();
-  const works = (await getBlogPosts()).filter((p) => inCategories(p.category, WORKS_CATEGORIES)).length;
+  const blog = await getBlogPosts();
+  const works = blog.filter((p) => inCategories(p.category, WORKS_CATEGORIES)).length;
+  const research = blog.filter((p) => inCategories(p.category, RESEARCH_CATEGORIES)).length;
   return {
-    architecture: works + ["건축", "대학원", "서비스", "비전"].reduce((n, a) => n + by(a).length, 0),
+    architecture: works + ["건축", "서비스", "비전"].reduce((n, a) => n + by(a).length, 0),
     publishing: by("콘텐츠").length + by("출판").length,
+    research: research + by("대학원").length,
   };
 }
 
