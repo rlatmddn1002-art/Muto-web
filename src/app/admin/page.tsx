@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Session } from "@supabase/supabase-js";
 import { browserSupabase, hasSupabase } from "@/lib/supabase";
 import { seedActivities, seedMilestones } from "@/lib/seed";
+import { BlogArchive } from "@/components/BlogArchive";
 import { AREAS, STATUSES, type Activity, type Milestone, type Status } from "@/lib/types";
 
 const STATUS_STYLE: Record<Status, string> = {
@@ -14,7 +15,7 @@ const STATUS_STYLE: Record<Status, string> = {
   완료: "bg-[#f3f3f3] text-[#8c8c8c] border border-[#f3f3f3]",
 };
 
-type Tab = "activities" | "milestones" | "old";
+type Tab = "activities" | "milestones" | "old" | "blog";
 
 function fmtDate(s: string) {
   const d = new Date(s);
@@ -248,6 +249,7 @@ export default function AdminPage() {
             ["activities", `활동 ${current.length}`],
             ["milestones", `마일스톤 ${milestones.length}`],
             ["old", `OLD ${old.length}`],
+            ["blog", "블로그"],
           ] as [Tab, string][]
         ).map(([k, label]) => (
           <button
@@ -354,12 +356,14 @@ export default function AdminPage() {
         </ul>
       )}
 
-      <button
+      {tab === "blog" && <BlogArchive db={db} flash={flash} />}
+
+      {tab !== "blog" && <button
         onClick={() => (tab === "milestones" ? setEditingM(blankMilestone()) : setEditingA(blankActivity()))}
         className="btn btn-dark fixed bottom-6 right-6 z-30 !px-5 !py-3"
       >
         + {tab === "milestones" ? "마일스톤" : "활동"} 추가
-      </button>
+      </button>}
 
       {msg && (
         <div className="fixed bottom-24 left-1/2 z-40 -translate-x-1/2 bg-ink/90 px-4 py-2 text-xs text-white backdrop-blur">{msg}</div>

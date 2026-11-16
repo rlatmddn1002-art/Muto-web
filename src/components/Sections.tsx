@@ -1,6 +1,6 @@
 import { getPublicActivities, getPublicMilestones } from "@/lib/data";
 import type { Activity } from "@/lib/types";
-import { getBlogPosts, type BlogPost } from "@/lib/naver";
+import { getAllBlogPosts, type BlogPost } from "@/lib/naver";
 import { SERIES_CATEGORIES, SERIES_LOGOS, WORKS_CATEGORIES, RESEARCH_CATEGORIES, inCategories, workOwner, workTitle } from "@/lib/series";
 import { BlogImage } from "./BlogImage";
 import { Paged } from "./Paged";
@@ -150,7 +150,7 @@ function BlogWorkRow({ p, i, tag = true }: { p: BlogPost; i: number; tag?: boole
 /** 건축 — 설계 · 도구 · 비전 */
 export async function ArchitectureSections() {
   const { by } = await workData();
-  const works = (await getBlogPosts()).filter((p) => inCategories(p.category, WORKS_CATEGORIES));
+  const works = (await getAllBlogPosts()).filter((p) => inCategories(p.category, WORKS_CATEGORIES));
   const muto = works.filter((p) => workOwner(p.title) === "MUTO").length;
   return (
     <>
@@ -170,7 +170,7 @@ export async function ArchitectureSections() {
 /** 연구 — 대학원 연구기록 */
 export async function ResearchSections() {
   const { by } = await workData();
-  const notes = (await getBlogPosts()).filter((p) => inCategories(p.category, RESEARCH_CATEGORIES));
+  const notes = (await getAllBlogPosts()).filter((p) => inCategories(p.category, RESEARCH_CATEGORIES));
   const items = by("대학원");
   if (!notes.length && !items.length) {
     return (
@@ -195,7 +195,7 @@ export async function ResearchSections() {
 /** 출판 — 연재 · 전자책 */
 export async function PublishingSections() {
   const { by } = await workData();
-  const blog = await getBlogPosts();
+  const blog = await getAllBlogPosts();
   const postsFor = (a: Activity) => {
     const cats = SERIES_CATEGORIES[a.title];
     return cats ? blog.filter((p) => inCategories(p.category, cats)) : undefined;
@@ -214,7 +214,7 @@ export async function PublishingSections() {
 /** Work 첫 화면에 보여줄 개수 */
 export async function WorkCounts() {
   const { by } = await workData();
-  const blog = await getBlogPosts();
+  const blog = await getAllBlogPosts();
   const works = blog.filter((p) => inCategories(p.category, WORKS_CATEGORIES)).length;
   const research = blog.filter((p) => inCategories(p.category, RESEARCH_CATEGORIES)).length;
   return {

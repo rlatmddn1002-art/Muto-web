@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+import { serverClient } from "./supabase";
 
 export type BlogPost = {
   title: string;
@@ -95,6 +96,40 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
     console.error("naver rss", e);
     return [];
   }
+}
+
+/** 글 주소에서 글 번호만 뽑아 같은 글인지 비교해요 */
+export function postKey(link: string) {
+  const m = link.match(/(?:blog\.naver\.com\/[^/?#]+\/|logNo=)(\d+)/);
+  return m ? m[1] : link;
+}
+
+/** Supabase 보관함에 쌓아둔 글 (RSS에서 밀려난 예전 글 포함) */
+async function getArchivedPosts(): Promise<BlogPost[]> {
+  "use cache";
+  cacheLife("minutes");
+  const db = serverClient();
+  if (!db) return [];
+  const { data, error } = await db.from("blog_posts").select("title,link,category,excerpt,date,image").limit(2000);
+  if (error) {
+    console.error("blog archive", error.message);
+    return [];
+  }
+  return (data ?? []).map((r) => ({ ...r, excerpt: r.excerpt ?? "", date: r.date ?? "" })) as BlogPost[];
+}
+
+/** RSS 최근 글 + 보관함 글을 합쳐 최신순으로 */
+export async function getAllBlogPosts(): Promise<BlogPost[]> {
+  const [rss, archived] = await Promise.all([getBlogPosts(), getArchivedPosts()]);
+  const seen = new Set<string>();
+  const out: BlogPost[] = [];
+  for (const p of [...rss, ...archived]) {
+    const k = p.link ? postKey(p.link) : p.title;
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(p);
+  }
+  return out.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
 }
 
 /** 블로그 아이디를 넣기 전 미리보기용 — 화면에 '예시'로 표시돼요 */
