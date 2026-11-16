@@ -3,6 +3,7 @@ import type { Activity } from "@/lib/types";
 import { getBlogPosts, type BlogPost } from "@/lib/naver";
 import { SERIES_CATEGORIES, SERIES_LOGOS, WORKS_CATEGORIES, RESEARCH_CATEGORIES, inCategories, workOwner, workTitle } from "@/lib/series";
 import { BlogImage } from "./BlogImage";
+import { Paged } from "./Paged";
 import Link from "next/link";
 
 const statusLabel = (s: Activity["status"]) =>
@@ -156,9 +157,7 @@ export async function ArchitectureSections() {
       {works.length > 0 && (
         <section>
           <Header id="projects" title="Projects" note={`블로그 works에서 자동 기록 · MUTO ${muto} · YKH ${works.length - muto}`} />
-          {works.map((p, i) => (
-            <BlogWorkRow key={p.link || i} p={p} i={i} />
-          ))}
+          <Paged id="projects" items={works.map((p, i) => <BlogWorkRow key={p.link || i} p={p} i={i} />)} />
         </section>
       )}
       <Block id="projects-more" title={works.length ? "More" : "Projects"} note="설계 · 프로젝트" items={by("건축")} />
@@ -185,9 +184,7 @@ export async function ResearchSections() {
       {notes.length > 0 && (
         <section>
           <Header id="notes" title="Notes" note="블로그 research에서 자동 기록" />
-          {notes.map((p, i) => (
-            <BlogWorkRow key={p.link || i} p={p} i={i} tag={false} />
-          ))}
+          <Paged id="notes" items={notes.map((p, i) => <BlogWorkRow key={p.link || i} p={p} i={i} tag={false} />)} />
         </section>
       )}
       <Block id="studies" title="Studies" note="대학원 · 논문 · 설계" items={items} />

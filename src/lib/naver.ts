@@ -106,6 +106,6 @@ function demoPosts(): BlogPost[] {
     { title: "예시 — 해외 공간도 함께 기록돼요", link: "", category: "공간미학(해외)", excerpt: "카테고리별로 걸러 볼 수도 있어요.", date: d("2026-10-27"), image: null },
     { title: "[YKH] 예시 — 회사 작업은 YKH로 표시돼요", link: "", category: "works", excerpt: "제목에 [YKH]를 붙이면 자동으로 구분돼요.", date: d("2026-10-23"), image: null },
     { title: "예시 — 개인 작업은 MUTO로 표시돼요", link: "", category: "works", excerpt: "그 외 works 글은 MUTO 작업으로 올라가요.", date: d("2026-10-20"), image: null },
-    { title: "예시 — 대학원 연구기록은 Research에 쌓여요", link: "", category: "research", excerpt: "블로그 research 카테고리에 쓰면 자동으로 기록돼요.", date: d("2026-10-15"), image: null },
+    { title: "예시 — 대학원 연구기록은 Research에 쌓여요", link: "", category: "research", excerpt: "블로그 research 카테고리에 쓰면 자동으로 기록돼요.", date: d("2026-10-15"), image: null }, image: null })),
   ];
 }

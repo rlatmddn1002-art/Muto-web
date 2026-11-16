@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { BlogPost } from "@/lib/naver";
 import { SERIES_CATEGORIES, inCategories } from "@/lib/series";
 import { BlogImage } from "./BlogImage";
+import { Paged } from "./Paged";
 
 const FILTERS: { label: string; cats: string[] | null }[] = [
   { label: "전체", cats: null },
@@ -24,7 +25,7 @@ export function JournalList({ posts }: { posts: BlogPost[] }) {
   const shown = cats ? posts.filter((p) => inCategories(p.category, cats)) : posts;
   return (
     <>
-      <div className="grid-frame -mt-px grid-cols-1">
+      <div id="journal-list" className="grid-frame -mt-px scroll-mt-6 grid-cols-1">
         <div className="cell flex flex-wrap gap-x-5 gap-y-2 text-[11px]">
           {FILTERS.map((x, i) => (
             <button key={x.label} onClick={() => setF(i)} className={i === f ? "underline underline-offset-4" : "text-muted hover:text-ink"}>
@@ -38,7 +39,7 @@ export function JournalList({ posts }: { posts: BlogPost[] }) {
           <div className="cell sub py-12 text-center">최근 글 중에는 이 연재의 글이 없어요.</div>
         </div>
       )}
-      {shown.map((p, i) => {
+      <Paged key={f} id="journal-list" per={10} items={shown.map((p, i) => {
         const body = (
           <>
             <div className="cell">
@@ -70,7 +71,7 @@ export function JournalList({ posts }: { posts: BlogPost[] }) {
             {body}
           </div>
         );
-      })}
+      })} />
     </>
   );
 }
